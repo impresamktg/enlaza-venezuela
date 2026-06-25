@@ -6,7 +6,7 @@ const TABLE = "posts";
 
 /** Columnas públicas (nunca incluir manage_token). */
 const PUBLIC_COLUMNS =
-  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,status,created_at";
+  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at";
 
 /** Registro interno en memoria: una publicación + su token de gestión. */
 type MemPost = Post & { manage_token: string };
@@ -102,6 +102,8 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     contact_name: input.contact_name.trim(),
     contact_phone: input.contact_phone.trim(),
     people_count: input.people_count ?? null,
+    lat: input.lat ?? null,
+    lng: input.lng ?? null,
   };
 
   if (!supabase) {
@@ -127,6 +129,8 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     p_contact_name: base.contact_name,
     p_contact_phone: base.contact_phone,
     p_people_count: base.people_count,
+    p_lat: base.lat,
+    p_lng: base.lng,
   });
 
   if (!rpcError && rpcData && rpcData[0]) {

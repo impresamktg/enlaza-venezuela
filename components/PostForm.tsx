@@ -14,6 +14,10 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
   const [type, setType] = useState<PostType>(defaultType);
   const [category, setCategory] = useState<string>("");
   const [city, setCity] = useState<string>("caracas");
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locStatus, setLocStatus] = useState<
+    "idle" | "loading" | "on" | "denied" | "error"
+  >("idle");
   const zones = useMemo(() => CITIES.find((c) => c.id === city)?.zones ?? [], [city]);
 
   // Al publicar con éxito, guarda el token en este navegador para poder gestionar.
@@ -31,6 +35,29 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
   const isNeed = type === "need";
   const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
 
+  function captureLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocStatus("error");
+      return;
+    }
+    setLocStatus("loading");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        // Redondea a ~110 m para no guardar la ubicación exacta.
+        setCoords({
+          lat: Math.round(pos.coords.latitude * 1000) / 1000,
+          lng: Math.round(pos.coords.longitude * 1000) / 1000,
+        });
+        setLocStatus("on");
+      },
+      (err) => {
+        setCoords(null);
+        setLocStatus(err.code === err.PERMISSION_DENIED ? "denied" : "error");
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
+  }
+
   const fieldClass =
     "w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ve-blue)]/30";
   const labelClass = "block text-sm font-medium mb-1.5";
@@ -39,6 +66,8 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
     <form action={formAction} className="flex flex-col gap-6">
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="category" value={category} />
+      <input type="hidden" name="lat" value={coords?.lat ?? ""} />
+      <input type="hidden" name="lng" value={coords?.lng ?? ""} />
 
       {/* Tipo */}
       <fieldset>
@@ -180,6 +209,47 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
             ))}
           </datalist>
         </div>
+      </div>
+
+      {/* Ubicación aproximada (opcional) */}
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3.5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium">📍 Añadir mi ubicación aproximada</p>
+            <p className="text-xs text-[var(--color-muted)] mt-0.5">
+              Ayuda a que te encuentren las personas más cercanas. Se guarda aproximada
+              (~100 m), nunca tu dirección exacta.
+            </p>
+          </div>
+          {locStatus === "on" ? (
+            <button
+              type="button"
+              onClick={() => {
+                setCoords(null);
+                setLocStatus("idle");
+              }}
+              className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-[var(--color-offer-soft)] text-[var(--color-offer)] text-xs font-semibold px-3 py-2"
+            >
+              ✓ Añadida <span className="opacity-60">✕</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={captureLocation}
+              disabled={locStatus === "loading"}
+              className="shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-xs font-semibold px-3 py-2 hover:border-[var(--color-ve-blue)] disabled:opacity-60"
+            >
+              {locStatus === "loading" ? "Ubicando…" : "Usar mi ubicación"}
+            </button>
+          )}
+        </div>
+        {(locStatus === "denied" || locStatus === "error") && (
+          <p className="text-xs text-[var(--color-muted)] mt-2">
+            {locStatus === "denied"
+              ? "Permiso de ubicación denegado. Puedes indicar la zona arriba."
+              : "No se pudo obtener la ubicación. Puedes indicar la zona arriba."}
+          </p>
+        )}
       </div>
 
       {/* Contacto */}

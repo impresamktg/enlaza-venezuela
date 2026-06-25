@@ -58,10 +58,22 @@ export const ZONE_COORDS: Record<string, LatLng> = {
   "La Victoria": { lat: 10.23, lng: -67.33 },
 };
 
-/** Coordenada de una publicación: zona si se conoce, si no la ciudad. */
-export function postCoords(city: string, zone: string | null): LatLng | null {
-  if (zone && ZONE_COORDS[zone]) return ZONE_COORDS[zone];
-  return CITY_COORDS[city] ?? null;
+/**
+ * Coordenada de una publicación, de más a menos precisa:
+ * 1) coordenada aproximada propia (si el autor la compartió),
+ * 2) centroide de la zona, 3) centroide de la ciudad.
+ */
+export function postCoords(post: {
+  city: string;
+  zone: string | null;
+  lat: number | null;
+  lng: number | null;
+}): LatLng | null {
+  if (typeof post.lat === "number" && typeof post.lng === "number") {
+    return { lat: post.lat, lng: post.lng };
+  }
+  if (post.zone && ZONE_COORDS[post.zone]) return ZONE_COORDS[post.zone];
+  return CITY_COORDS[post.city] ?? null;
 }
 
 /** Distancia en km entre dos coordenadas (fórmula de Haversine). */

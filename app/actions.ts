@@ -39,6 +39,21 @@ export async function createPostAction(
     if (!Number.isNaN(n) && n > 0 && n < 100000) peopleCount = n;
   }
 
+  // Ubicación aproximada opcional. Se valida (rango de Venezuela) y se redondea
+  // a ~110 m (3 decimales) para no exponer la ubicación exacta del autor.
+  let lat: number | null = null;
+  let lng: number | null = null;
+  const latRaw = String(formData.get("lat") ?? "").trim();
+  const lngRaw = String(formData.get("lng") ?? "").trim();
+  if (latRaw && lngRaw) {
+    const la = Number.parseFloat(latRaw);
+    const ln = Number.parseFloat(lngRaw);
+    if (Number.isFinite(la) && Number.isFinite(ln) && la > 0 && la < 16 && ln > -75 && ln < -58) {
+      lat = Math.round(la * 1000) / 1000;
+      lng = Math.round(ln * 1000) / 1000;
+    }
+  }
+
   let result;
   try {
     result = await createPost({
@@ -51,6 +66,8 @@ export async function createPostAction(
       contact_name: contactName,
       contact_phone: contactPhone,
       people_count: peopleCount,
+      lat,
+      lng,
     });
   } catch {
     return { error: "No se pudo publicar. Revisa tu conexión e intenta de nuevo." };

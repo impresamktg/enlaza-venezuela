@@ -13,6 +13,8 @@ export interface Post {
   contact_name: string;
   contact_phone: string; // WhatsApp-capable
   people_count: number | null; // personas afectadas o capacidad ofrecida
+  lat: number | null; // ubicación aproximada opcional (~110 m)
+  lng: number | null;
   status: PostStatus;
   created_at: string; // ISO timestamp
 }
@@ -44,4 +46,6 @@ export interface NewPost {
   contact_name: string;
   contact_phone: string;
   people_count?: number | null;
+  lat?: number | null;
+  lng?: number | null;
 }

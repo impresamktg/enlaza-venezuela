@@ -71,7 +71,7 @@ export default function Board({ posts }: { posts: Post[] }) {
     const items = filtered.map((post) => {
       let distanceKm: number | undefined;
       if (userLoc) {
-        const c = postCoords(post.city, post.zone);
+        const c = postCoords(post);
         if (c) distanceKm = haversineKm(userLoc, c);
       }
       return { post, distanceKm };

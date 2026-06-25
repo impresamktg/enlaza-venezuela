@@ -16,7 +16,10 @@ create table if not exists public.posts (
   status        text not null default 'active' check (status in ('active', 'resolved')),
   created_at    timestamptz not null default now(),
   -- Token secreto para que el autor gestione (resuelva/elimine) su publicación.
-  manage_token  uuid not null default gen_random_uuid()
+  manage_token  uuid not null default gen_random_uuid(),
+  -- Ubicación aproximada opcional (~110 m), para ordenar por cercanía.
+  lat           double precision,
+  lng           double precision
 );
 
 create index if not exists posts_type_idx       on public.posts (type);
@@ -43,24 +46,26 @@ create policy "public insert" on public.posts for insert with check (
 revoke select on public.posts from anon, authenticated;
 grant select (
   id, type, category, title, description, city, zone,
-  contact_name, contact_phone, people_count, status, created_at
+  contact_name, contact_phone, people_count, status, created_at, lat, lng
 ) on public.posts to anon, authenticated;
 
 -- Crear publicación (devuelve el token solo al autor).
 create or replace function public.create_post(
   p_type text, p_category text, p_title text, p_description text,
   p_city text, p_zone text, p_contact_name text, p_contact_phone text,
-  p_people_count int
+  p_people_count int,
+  p_lat double precision default null, p_lng double precision default null
 ) returns table (id uuid, manage_token uuid)
 language plpgsql security definer set search_path = public as $$
 begin
   return query
   insert into public.posts (
     type, category, title, description, city, zone,
-    contact_name, contact_phone, people_count
+    contact_name, contact_phone, people_count, lat, lng
   ) values (
     p_type, p_category, p_title, nullif(p_description, ''), p_city,
-    nullif(p_zone, ''), p_contact_name, p_contact_phone, p_people_count
+    nullif(p_zone, ''), p_contact_name, p_contact_phone, p_people_count,
+    p_lat, p_lng
   )
   returning posts.id, posts.manage_token;
 end; $$;
@@ -85,6 +90,6 @@ begin
   return n > 0;
 end; $$;
 
-grant execute on function public.create_post(text,text,text,text,text,text,text,text,int) to anon, authenticated;
+grant execute on function public.create_post(text,text,text,text,text,text,text,text,int,double precision,double precision) to anon, authenticated;
 grant execute on function public.resolve_post(uuid, uuid) to anon, authenticated;
 grant execute on function public.delete_post(uuid, uuid) to anon, authenticated;
