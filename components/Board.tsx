@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CATEGORIES, CITIES } from "@/lib/data";
 import type { Post, PostType } from "@/lib/types";
@@ -8,7 +9,18 @@ import { getTokens } from "@/lib/manage-tokens";
 import { postCoords, haversineKm, type LatLng } from "@/lib/geo";
 import PostCard from "./PostCard";
 
+// El mapa usa Leaflet (solo en el navegador), por eso se carga sin SSR.
+const MapView = dynamic(() => import("./MapView"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[480px] w-full rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-center text-sm text-[var(--color-muted)]">
+      Cargando mapa…
+    </div>
+  ),
+});
+
 type GeoState = "idle" | "loading" | "on" | "denied" | "error";
+type ViewMode = "list" | "map";
 
 const TYPE_TABS: { id: PostType; label: string; color: string }[] = [
   { id: "need", label: "Necesitan ayuda", color: "var(--color-need)" },
@@ -23,6 +35,7 @@ export default function Board({ posts }: { posts: Post[] }) {
   const [tokens, setTokens] = useState<Record<string, string>>({});
   const [userLoc, setUserLoc] = useState<LatLng | null>(null);
   const [geoState, setGeoState] = useState<GeoState>("idle");
+  const [view, setView] = useState<ViewMode>("list");
 
   // Carga los tokens de gestión de las publicaciones creadas en este navegador.
   useEffect(() => {
@@ -87,25 +100,47 @@ export default function Board({ posts }: { posts: Post[] }) {
 
   return (
     <section className="flex flex-col gap-5">
-      {/* Toggle de tipo */}
-      <div className="flex gap-1.5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] p-1.5 w-full sm:w-fit">
-        {TYPE_TABS.map((tab) => {
-          const active = type === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setType(tab.id)}
-              className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
-              style={
-                active
-                  ? { background: tab.color, color: "#fff" }
-                  : { color: "var(--color-muted)" }
-              }
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+      {/* Toggle de tipo + vista */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex gap-1.5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] p-1.5 w-full sm:w-fit">
+          {TYPE_TABS.map((tab) => {
+            const active = type === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setType(tab.id)}
+                className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+                style={
+                  active
+                    ? { background: tab.color, color: "#fff" }
+                    : { color: "var(--color-muted)" }
+                }
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex gap-1.5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] p-1.5">
+          {(["list", "map"] as ViewMode[]).map((v) => {
+            const active = view === v;
+            return (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className="px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+                style={
+                  active
+                    ? { background: "var(--color-ink)", color: "#fff" }
+                    : { color: "var(--color-muted)" }
+                }
+              >
+                {v === "list" ? "📋 Lista" : "🗺️ Mapa"}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Filtros */}
@@ -189,6 +224,8 @@ export default function Board({ posts }: { posts: Post[] }) {
 
       {displayed.length === 0 ? (
         <EmptyState />
+      ) : view === "map" ? (
+        <MapView items={displayed} userLoc={userLoc} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {displayed.map(({ post, distanceKm }) => (
