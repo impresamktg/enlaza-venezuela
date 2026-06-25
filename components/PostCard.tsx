@@ -3,6 +3,7 @@ import { timeAgo, whatsappHref } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
 import type { Post } from "@/lib/types";
 import ManagePost from "./ManagePost";
+import SharePost from "./SharePost";
 
 export default function PostCard({
   post,
@@ -84,6 +85,9 @@ export default function PostCard({
           <span aria-hidden>💬</span>
           Contactar a {post.contact_name.split(" ")[0]}
         </a>
+        <div className="mt-2 flex justify-center">
+          <SharePost postId={post.id} title={post.title} />
+        </div>
         {manageToken && (
           <div className="mt-3 border-t border-[var(--color-border)] pt-3">
             <ManagePost postId={post.id} token={manageToken} />

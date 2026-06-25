@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { CATEGORIES, CATEGORY_MAP, CITIES } from "@/lib/data";
 import type { Post, PostType } from "@/lib/types";
 import { getTokens } from "@/lib/manage-tokens";
+import { getSupabase } from "@/lib/supabase";
 import { postCoords, haversineKm, type LatLng } from "@/lib/geo";
 import PostCard from "./PostCard";
 
@@ -45,8 +46,31 @@ export default function Board({ posts }: { posts: Post[] }) {
     setTokens(getTokens());
   }, [posts]);
 
-  // Actualización automática: re-consulta el servidor cada 30 s (solo con la
-  // pestaña visible). router.refresh() conserva los filtros, vista y mapa.
+  // Actualización al instante con Supabase Realtime: cualquier cambio en la
+  // tabla posts dispara un refresh (con pequeño debounce).
+  useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const channel = supabase
+      .channel("public:posts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "posts" },
+        () => {
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => router.refresh(), 600);
+        },
+      )
+      .subscribe();
+    return () => {
+      if (timer) clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [router]);
+
+  // Respaldo: re-consulta cada 30 s (solo con la pestaña visible) por si
+  // Realtime se desconecta. router.refresh() conserva filtros, vista y mapa.
   useEffect(() => {
     const id = setInterval(() => {
       if (document.visibilityState === "visible") router.refresh();
