@@ -9,10 +9,18 @@ import { saveToken } from "@/lib/manage-tokens";
 
 const initialState: FormState = {};
 
-export default function PostForm({ defaultType = "need" }: { defaultType?: PostType }) {
+export default function PostForm({
+  defaultType = "need",
+  defaultCategory = "",
+}: {
+  defaultType?: PostType;
+  defaultCategory?: string;
+}) {
   const [state, formAction, pending] = useActionState(createPostAction, initialState);
   const [type, setType] = useState<PostType>(defaultType);
-  const [category, setCategory] = useState<string>("");
+  const [category, setCategory] = useState<string>(
+    CATEGORIES.some((c) => c.id === defaultCategory) ? defaultCategory : "",
+  );
   const [city, setCity] = useState<string>("caracas");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locStatus, setLocStatus] = useState<

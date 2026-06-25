@@ -7,10 +7,11 @@ import type { PostType } from "@/lib/types";
 export default async function PublicarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tipo?: string }>;
+  searchParams: Promise<{ tipo?: string; categoria?: string }>;
 }) {
   const sp = await searchParams;
   const defaultType: PostType = sp.tipo === "offer" ? "offer" : "need";
+  const defaultCategory = sp.categoria ?? "";
 
   return (
     <>
@@ -32,7 +33,7 @@ export default async function PublicarPage({
           </p>
 
           <div className="mt-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 sm:p-7">
-            <PostForm defaultType={defaultType} />
+            <PostForm defaultType={defaultType} defaultCategory={defaultCategory} />
           </div>
         </div>
       </main>

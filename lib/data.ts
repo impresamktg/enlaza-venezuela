@@ -10,6 +10,18 @@ export interface Category {
 /** Tipos de ayuda que se pueden ofrecer o solicitar. */
 export const CATEGORIES: Category[] = [
   {
+    id: "rescate",
+    label: "Rescate y mano de obra",
+    icon: "⛑️",
+    hint: "PRIORIDAD: búsqueda y rescate, remoción de escombros, maquinaria pesada, herramientas, brigadas con experiencia",
+  },
+  {
+    id: "voluntarios",
+    label: "Voluntarios",
+    icon: "🙋",
+    hint: "Personas dispuestas a ayudar con su tiempo: rescate, logística, reparto, censo, apoyo",
+  },
+  {
     id: "transporte",
     label: "Transporte",
     icon: "🚚",
@@ -32,18 +44,6 @@ export const CATEGORIES: Category[] = [
     label: "Salud y medicinas",
     icon: "🩺",
     hint: "Medicamentos, primeros auxilios, atención médica, insumos",
-  },
-  {
-    id: "rescate",
-    label: "Rescate y mano de obra",
-    icon: "⛑️",
-    hint: "Búsqueda y rescate, remoción de escombros",
-  },
-  {
-    id: "voluntarios",
-    label: "Voluntarios",
-    icon: "🙋",
-    hint: "Personas dispuestas a ayudar con su tiempo: logística, reparto, censo, apoyo",
   },
   {
     id: "materiales",

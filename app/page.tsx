@@ -41,12 +41,59 @@ export default async function Home({
             </h1>
             <p className="mt-3 text-[var(--color-muted)] max-w-2xl">
               Tras los sismos de magnitud 7.2 y 7.5 que afectaron a Caracas, La Guaira y el
-              centro del país, esta plataforma comunitaria ayuda a coordinar transporte,
-              refugio, alimentos, salud y rescate. Publica lo que ofreces o lo que
-              necesitas y contacta directamente por WhatsApp.
+              centro del país, esta plataforma comunitaria conecta directamente, por
+              WhatsApp, a quien puede ayudar con quien lo necesita.
             </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            {/* Prioridad: rescate */}
+            <div
+              className="mt-5 max-w-2xl rounded-2xl border-2 p-4 sm:p-5"
+              style={{
+                borderColor: "var(--color-need)",
+                background: "var(--color-need-soft)",
+              }}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl leading-none" aria-hidden>
+                  ⛑️
+                </span>
+                <div>
+                  <h2 className="font-bold text-[var(--color-need)]">
+                    La prioridad es el rescate
+                  </h2>
+                  <p className="text-sm mt-1 text-[var(--color-ink)]/80">
+                    Las autoridades no tienen los medios, las herramientas ni la gente
+                    suficientes. Lo más urgente:{" "}
+                    <strong>maquinaria pesada, herramientas y voluntarios con experiencia</strong>{" "}
+                    para búsqueda, rescate y remoción de escombros. Refugio, alimentos y
+                    salud también ayudan, pero el rescate no puede esperar.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link
+                      href="/publicar?tipo=offer&categoria=rescate"
+                      className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-4 py-2 text-sm hover:brightness-95 transition"
+                    >
+                      ⛑️ Ofrezco para rescate
+                    </Link>
+                    <Link
+                      href="/publicar?tipo=need&categoria=rescate"
+                      className="rounded-xl border-2 font-semibold px-4 py-2 text-sm transition hover:bg-white"
+                      style={{
+                        borderColor: "var(--color-need)",
+                        color: "var(--color-need)",
+                      }}
+                    >
+                      🆘 Necesito rescate
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-6 text-sm font-medium text-[var(--color-muted)]">
+              ¿Otro tipo de ayuda? También coordinamos refugio, alimentos, salud y más:
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
               <Link
                 href="/publicar?tipo=need"
                 className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-5 py-3 hover:brightness-95 transition"
