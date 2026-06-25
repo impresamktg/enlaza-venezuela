@@ -7,15 +7,22 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.enlazavenezuela.com"),
-  title: "Ayuda Venezuela — Conecta ayuda tras el terremoto",
+  title: "Enlaza Venezuela — Conecta ayuda tras el terremoto",
   description:
     "Plataforma comunitaria que conecta a quienes ofrecen ayuda con quienes la necesitan tras los terremotos del 24 de junio de 2026 en Venezuela. Enfocada en Caracas y La Guaira.",
   openGraph: {
-    title: "Ayuda Venezuela",
+    title: "Enlaza Venezuela — Conecta ayuda tras el terremoto",
     description:
-      "Conecta a quienes ofrecen ayuda con quienes la necesitan tras el terremoto.",
+      "Conecta a quienes ofrecen ayuda con quienes la necesitan tras el terremoto. Caracas y La Guaira.",
+    siteName: "Enlaza Venezuela",
     locale: "es_VE",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Enlaza Venezuela — Conecta ayuda tras el terremoto",
+    description:
+      "Conecta a quienes ofrecen ayuda con quienes la necesitan tras el terremoto.",
   },
 };
 

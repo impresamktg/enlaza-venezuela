@@ -1,17 +1,20 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Header() {
   return (
     <header className="sticky top-0 z-30 bg-[var(--color-surface)]/95 backdrop-blur border-b border-[var(--color-border)]">
       <div className="flag-stripe" />
       <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="text-xl" aria-hidden>
-            🤝
-          </span>
-          <span>
-            Ayuda<span className="text-[var(--color-ve-blue)]">Venezuela</span>
-          </span>
+        <Link href="/" className="flex items-center" aria-label="Enlaza Venezuela — inicio">
+          <Image
+            src="/logo.png"
+            alt="Enlaza Venezuela"
+            width={300}
+            height={99}
+            priority
+            className="h-9 w-auto"
+          />
         </Link>
 
         <nav className="flex items-center gap-1 sm:gap-2 text-sm">
