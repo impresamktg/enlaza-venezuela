@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CATEGORIES, CITIES } from "@/lib/data";
 import type { Post, PostType } from "@/lib/types";
+import { getTokens } from "@/lib/manage-tokens";
 import PostCard from "./PostCard";
 
 type TypeFilter = "all" | PostType;
@@ -19,6 +20,12 @@ export default function Board({ posts }: { posts: Post[] }) {
   const [city, setCity] = useState<string>("all");
   const [category, setCategory] = useState<string>("all");
   const [query, setQuery] = useState<string>("");
+  const [tokens, setTokens] = useState<Record<string, string>>({});
+
+  // Carga los tokens de gestión de las publicaciones creadas en este navegador.
+  useEffect(() => {
+    setTokens(getTokens());
+  }, [posts]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -117,7 +124,7 @@ export default function Board({ posts }: { posts: Post[] }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} manageToken={tokens[post.id]} />
           ))}
         </div>
       )}

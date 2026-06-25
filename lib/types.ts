@@ -17,9 +17,21 @@ export interface Post {
   created_at: string; // ISO timestamp
 }
 
+/** Resultado de crear una publicación: la publicación y su token de gestión. */
+export interface CreateResult {
+  post: Post;
+  manageToken: string | null;
+}
+
 /** Estado del formulario de publicación (server action). */
 export interface FormState {
   error?: string;
+  /** En éxito: datos para que el autor gestione su publicación. */
+  success?: {
+    id: string;
+    type: PostType;
+    token: string | null;
+  };
 }
 
 export interface NewPost {

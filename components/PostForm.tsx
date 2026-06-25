@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { CATEGORIES, CITIES } from "@/lib/data";
 import type { FormState, PostType } from "@/lib/types";
 import { createPostAction } from "@/app/actions";
+import { saveToken } from "@/lib/manage-tokens";
 
 const initialState: FormState = {};
 
@@ -12,6 +14,17 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
   const [type, setType] = useState<PostType>(defaultType);
   const [category, setCategory] = useState<string>("");
   const [city, setCity] = useState<string>("caracas");
+
+  // Al publicar con éxito, guarda el token en este navegador para poder gestionar.
+  useEffect(() => {
+    if (state.success?.token) {
+      saveToken(state.success.id, state.success.token);
+    }
+  }, [state.success]);
+
+  if (state.success) {
+    return <SuccessPanel success={state.success} />;
+  }
 
   const isNeed = type === "need";
   const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
@@ -236,5 +249,84 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
         </p>
       </div>
     </form>
+  );
+}
+
+function SuccessPanel({
+  success,
+}: {
+  success: NonNullable<FormState["success"]>;
+}) {
+  const [copied, setCopied] = useState(false);
+  const isNeed = success.type === "need";
+  const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
+  const manageUrl = success.token
+    ? `/gestionar?id=${success.id}&token=${success.token}`
+    : null;
+
+  function copy() {
+    if (!manageUrl) return;
+    const full = `${window.location.origin}${manageUrl}`;
+    navigator.clipboard?.writeText(full).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="text-center fade-in">
+      <div
+        className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full text-2xl"
+        style={{ background: isNeed ? "var(--color-need-soft)" : "var(--color-offer-soft)" }}
+      >
+        ✅
+      </div>
+      <h2 className="text-xl font-bold">¡Tu publicación está activa!</h2>
+      <p className="mt-2 text-sm text-[var(--color-muted)] max-w-md mx-auto">
+        Ya aparece en el tablón y las personas podrán contactarte por WhatsApp.
+      </p>
+
+      {manageUrl && (
+        <div className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 text-left">
+          <p className="text-sm font-medium">Gestiona tu publicación</p>
+          <p className="text-xs text-[var(--color-muted)] mt-1">
+            Desde este dispositivo verás los botones para marcarla como resuelta o
+            eliminarla en tu tarjeta. Para gestionarla desde otro dispositivo, guarda
+            este enlace privado:
+          </p>
+          <div className="mt-2 flex gap-2">
+            <input
+              readOnly
+              value={`${typeof window !== "undefined" ? window.location.origin : ""}${manageUrl}`}
+              className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-xs text-[var(--color-muted)]"
+              onFocus={(e) => e.currentTarget.select()}
+            />
+            <button
+              type="button"
+              onClick={copy}
+              className="rounded-lg bg-[var(--color-ink)] text-white text-xs font-semibold px-3 py-2 whitespace-nowrap"
+            >
+              {copied ? "¡Copiado!" : "Copiar"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+        <Link
+          href="/"
+          className="rounded-xl text-white font-semibold px-5 py-3"
+          style={{ background: accent }}
+        >
+          Ver en el tablón
+        </Link>
+        <a
+          href={isNeed ? "/publicar?tipo=need" : "/publicar?tipo=offer"}
+          className="rounded-xl border border-[var(--color-border)] font-semibold px-5 py-3 text-[var(--color-ink)]"
+        >
+          Publicar otra
+        </a>
+      </div>
+    </div>
   );
 }

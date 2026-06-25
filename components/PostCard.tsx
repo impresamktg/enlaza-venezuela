@@ -1,8 +1,15 @@
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 import { timeAgo, whatsappHref } from "@/lib/format";
 import type { Post } from "@/lib/types";
+import ManagePost from "./ManagePost";
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({
+  post,
+  manageToken,
+}: {
+  post: Post;
+  manageToken?: string;
+}) {
   const isNeed = post.type === "need";
   const category = CATEGORY_MAP[post.category];
 
@@ -66,6 +73,11 @@ export default function PostCard({ post }: { post: Post }) {
           <span aria-hidden>💬</span>
           Contactar a {post.contact_name.split(" ")[0]}
         </a>
+        {manageToken && (
+          <div className="mt-3 border-t border-[var(--color-border)] pt-3">
+            <ManagePost postId={post.id} token={manageToken} />
+          </div>
+        )}
       </div>
     </article>
   );

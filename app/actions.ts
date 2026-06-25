@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { createPost } from "@/lib/db";
+import { createPost, resolvePost, deletePost } from "@/lib/db";
 import { CATEGORY_MAP, CITY_MAP } from "@/lib/data";
 import type { FormState, PostType } from "@/lib/types";
 
@@ -40,8 +39,9 @@ export async function createPostAction(
     if (!Number.isNaN(n) && n > 0 && n < 100000) peopleCount = n;
   }
 
+  let result;
   try {
-    await createPost({
+    result = await createPost({
       type,
       category,
       title,
@@ -57,5 +57,25 @@ export async function createPostAction(
   }
 
   revalidatePath("/");
-  redirect(`/?publicado=1&tipo=${type}`);
+  return { success: { id: result.post.id, type, token: result.manageToken } };
+}
+
+export async function resolvePostAction(
+  id: string,
+  token: string,
+): Promise<{ ok: boolean }> {
+  if (!id || !token) return { ok: false };
+  const ok = await resolvePost(id, token);
+  if (ok) revalidatePath("/");
+  return { ok };
+}
+
+export async function deletePostAction(
+  id: string,
+  token: string,
+): Promise<{ ok: boolean }> {
+  if (!id || !token) return { ok: false };
+  const ok = await deletePost(id, token);
+  if (ok) revalidatePath("/");
+  return { ok };
 }
