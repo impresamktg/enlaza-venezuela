@@ -308,7 +308,7 @@ export default function PostForm({
           >
             {phoneError
               ? "Ese número no parece válido. Revisa el código de área (ej: 0412 555 1234) o usa el código de país para números de otro país."
-              : "Será el número con el que te contacten. Verifica que esté correcto."}
+              : "Será el número con el que te contacten. Si no es de Venezuela, incluye el código de país (ej: +1 305 555 1234)."}
           </p>
         </div>
       </div>

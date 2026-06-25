@@ -1,6 +1,12 @@
 // Prefijos de móviles venezolanos (los únicos que sirven para WhatsApp en VE).
 const VE_MOBILE_PREFIXES = ["412", "414", "416", "424", "426"];
 
+/** Solo dígitos, quitando el prefijo internacional "00" (p. ej. 0058… → 58…). */
+function digitsOnly(raw: string): string {
+  const d = raw.replace(/\D/g, "");
+  return d.startsWith("00") ? d.slice(2) : d;
+}
+
 /** Si el número coincide con un patrón venezolano, lo normaliza a "58" + 10 dígitos. */
 function toVenezuelan(digits: string): string | null {
   if (digits.startsWith("58") && digits.length === 12) return digits; // 58 + 4XXXXXXXXX
@@ -11,7 +17,7 @@ function toVenezuelan(digits: string): string | null {
 
 /** Convierte un teléfono a formato wa.me (solo dígitos, con código de país). */
 export function normalizePhone(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
+  const digits = digitsOnly(raw);
   return toVenezuelan(digits) ?? digits;
 }
 
@@ -21,7 +27,7 @@ export function normalizePhone(raw: string): string {
  * Internacionales: formato E.164 (8–15 dígitos, con código de país, sin 0 inicial).
  */
 export function isValidWhatsApp(raw: string): boolean {
-  const digits = raw.replace(/\D/g, "");
+  const digits = digitsOnly(raw);
   const ve = toVenezuelan(digits);
   if (ve) return VE_MOBILE_PREFIXES.includes(ve.slice(2, 5));
   return digits.length >= 8 && digits.length <= 15 && !digits.startsWith("0");
