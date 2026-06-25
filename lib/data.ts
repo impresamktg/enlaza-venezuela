@@ -22,6 +22,12 @@ export const CATEGORIES: Category[] = [
     hint: "Personas dispuestas a ayudar con su tiempo: rescate, logística, reparto, censo, apoyo",
   },
   {
+    id: "maquinaria",
+    label: "Maquinaria pesada",
+    icon: "🚜",
+    hint: "Excavadoras, retroexcavadoras, grúas, montacargas y camiones de volteo para remover escombros",
+  },
+  {
     id: "transporte",
     label: "Transporte",
     icon: "🚚",
