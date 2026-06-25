@@ -1,14 +1,17 @@
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 import { timeAgo, whatsappHref } from "@/lib/format";
+import { formatDistance } from "@/lib/geo";
 import type { Post } from "@/lib/types";
 import ManagePost from "./ManagePost";
 
 export default function PostCard({
   post,
   manageToken,
+  distanceKm,
 }: {
   post: Post;
   manageToken?: string;
+  distanceKm?: number;
 }) {
   const isNeed = post.type === "need";
   const category = CATEGORY_MAP[post.category];
@@ -55,6 +58,14 @@ export default function PostCard({
             📍 {cityName(post.city)}
             {post.zone ? ` · ${post.zone}` : ""}
           </span>
+          {typeof distanceKm === "number" && (
+            <span
+              className="inline-flex items-center gap-1 font-medium"
+              style={{ color: "var(--color-ve-blue)" }}
+            >
+              {formatDistance(distanceKm)}
+            </span>
+          )}
           {post.people_count ? (
             <span className="inline-flex items-center gap-1">
               👥 {post.people_count} {post.people_count === 1 ? "persona" : "personas"}

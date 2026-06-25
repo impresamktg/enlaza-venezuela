@@ -5,7 +5,10 @@ import Link from "next/link";
 import { CATEGORIES, CITIES } from "@/lib/data";
 import type { Post, PostType } from "@/lib/types";
 import { getTokens } from "@/lib/manage-tokens";
+import { postCoords, haversineKm, type LatLng } from "@/lib/geo";
 import PostCard from "./PostCard";
+
+type GeoState = "idle" | "loading" | "on" | "denied" | "error";
 
 const TYPE_TABS: { id: PostType; label: string; color: string }[] = [
   { id: "need", label: "Necesitan ayuda", color: "var(--color-need)" },
@@ -18,11 +21,36 @@ export default function Board({ posts }: { posts: Post[] }) {
   const [category, setCategory] = useState<string>("all");
   const [query, setQuery] = useState<string>("");
   const [tokens, setTokens] = useState<Record<string, string>>({});
+  const [userLoc, setUserLoc] = useState<LatLng | null>(null);
+  const [geoState, setGeoState] = useState<GeoState>("idle");
 
   // Carga los tokens de gestión de las publicaciones creadas en este navegador.
   useEffect(() => {
     setTokens(getTokens());
   }, [posts]);
+
+  function requestLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoState("error");
+      return;
+    }
+    setGeoState("loading");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGeoState("on");
+      },
+      (err) => {
+        setGeoState(err.code === err.PERMISSION_DENIED ? "denied" : "error");
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
+  }
+
+  function disableLocation() {
+    setUserLoc(null);
+    setGeoState("idle");
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -37,6 +65,22 @@ export default function Board({ posts }: { posts: Post[] }) {
       return true;
     });
   }, [posts, type, city, category, query]);
+
+  // Calcula distancias y ordena por cercanía cuando hay ubicación del usuario.
+  const displayed = useMemo(() => {
+    const items = filtered.map((post) => {
+      let distanceKm: number | undefined;
+      if (userLoc) {
+        const c = postCoords(post.city, post.zone);
+        if (c) distanceKm = haversineKm(userLoc, c);
+      }
+      return { post, distanceKm };
+    });
+    if (userLoc) {
+      items.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
+    }
+    return items;
+  }, [filtered, userLoc]);
 
   const selectClass =
     "w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ve-blue)]/30";
@@ -97,30 +141,63 @@ export default function Board({ posts }: { posts: Post[] }) {
         />
       </div>
 
-      <div className="flex items-center justify-between text-sm text-[var(--color-muted)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--color-muted)]">
         <span>
           {filtered.length} {filtered.length === 1 ? "publicación" : "publicaciones"}
+          {geoState === "on" && " · ordenadas por cercanía"}
         </span>
-        {(city !== "all" || category !== "all" || query) && (
-          <button
-            onClick={() => {
-              setCity("all");
-              setCategory("all");
-              setQuery("");
-            }}
-            className="underline hover:text-[var(--color-ink)]"
-          >
-            Limpiar filtros
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {geoState === "on" ? (
+            <button
+              onClick={disableLocation}
+              className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-ve-blue)]/10 text-[var(--color-ve-blue)] font-medium px-3 py-1.5"
+            >
+              📍 Cerca de ti
+              <span className="opacity-60">✕</span>
+            </button>
+          ) : (
+            <button
+              onClick={requestLocation}
+              disabled={geoState === "loading"}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] font-medium px-3 py-1.5 hover:border-[var(--color-ve-blue)] disabled:opacity-60"
+            >
+              📍 {geoState === "loading" ? "Ubicando…" : "Más cercanos a mí"}
+            </button>
+          )}
+          {(city !== "all" || category !== "all" || query) && (
+            <button
+              onClick={() => {
+                setCity("all");
+                setCategory("all");
+                setQuery("");
+              }}
+              className="underline hover:text-[var(--color-ink)]"
+            >
+              Limpiar filtros
+            </button>
+          )}
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {(geoState === "denied" || geoState === "error") && (
+        <p className="-mt-2 text-xs text-[var(--color-muted)]">
+          {geoState === "denied"
+            ? "No se pudo acceder a tu ubicación (permiso denegado). Puedes filtrar por ciudad."
+            : "Tu navegador no pudo obtener la ubicación. Puedes filtrar por ciudad."}
+        </p>
+      )}
+
+      {displayed.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((post) => (
-            <PostCard key={post.id} post={post} manageToken={tokens[post.id]} />
+          {displayed.map(({ post, distanceKm }) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              manageToken={tokens[post.id]}
+              distanceKm={distanceKm}
+            />
           ))}
         </div>
       )}
