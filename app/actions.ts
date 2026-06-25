@@ -36,10 +36,11 @@ export async function createPostAction(
     };
   }
 
+  // Nº de personas: si viene fuera de rango se acota a [1, 9999] en vez de descartarlo.
   let peopleCount: number | null = null;
   if (peopleRaw) {
     const n = Number.parseInt(peopleRaw, 10);
-    if (!Number.isNaN(n) && n > 0 && n < 100000) peopleCount = n;
+    if (!Number.isNaN(n) && n > 0) peopleCount = Math.min(n, 9999);
   }
 
   // Ubicación aproximada opcional. Se valida (rango de Venezuela) y se redondea

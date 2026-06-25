@@ -25,6 +25,8 @@ export default function PostForm({
   const [city, setCity] = useState<string>("caracas");
   const [phone, setPhone] = useState<string>("");
   const [phoneTouched, setPhoneTouched] = useState<boolean>(false);
+  const [titleLen, setTitleLen] = useState<number>(0);
+  const [descLen, setDescLen] = useState<number>(0);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locStatus, setLocStatus] = useState<
     "idle" | "loading" | "on" | "denied" | "error"
@@ -161,12 +163,19 @@ export default function PostForm({
           minLength={5}
           maxLength={120}
           className={fieldClass}
+          onChange={(e) => setTitleLen(e.target.value.length)}
           placeholder={
             isNeed
               ? "Ej: Familia de 5 necesita refugio en Altamira"
               : "Ej: Camión disponible para traslados en Caracas"
           }
         />
+        <p
+          className="mt-1 text-xs text-right"
+          style={{ color: titleLen >= 120 ? "var(--color-need)" : "var(--color-muted)" }}
+        >
+          {titleLen}/120
+        </p>
       </div>
 
       {/* Descripción */}
@@ -180,8 +189,15 @@ export default function PostForm({
           rows={4}
           maxLength={1000}
           className={fieldClass}
+          onChange={(e) => setDescLen(e.target.value.length)}
           placeholder="Describe la situación, horarios, cantidades, condiciones, etc."
         />
+        <p
+          className="mt-1 text-xs text-right"
+          style={{ color: descLen >= 1000 ? "var(--color-need)" : "var(--color-muted)" }}
+        >
+          {descLen}/1000
+        </p>
       </div>
 
       {/* Ubicación */}
@@ -322,10 +338,15 @@ export default function PostForm({
           id="people_count"
           name="people_count"
           type="number"
+          inputMode="numeric"
           min={1}
+          max={9999}
           className={fieldClass}
           placeholder={isNeed ? "Personas afectadas" : "Capacidad / cupos"}
         />
+        <p className="mt-1.5 text-xs text-[var(--color-muted)]">
+          Número aproximado, entre 1 y 9999.
+        </p>
       </div>
 
       {state.error && (
