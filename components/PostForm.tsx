@@ -14,6 +14,7 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
   const [type, setType] = useState<PostType>(defaultType);
   const [category, setCategory] = useState<string>("");
   const [city, setCity] = useState<string>("caracas");
+  const zones = useMemo(() => CITIES.find((c) => c.id === city)?.zones ?? [], [city]);
 
   // Al publicar con éxito, guarda el token en este navegador para poder gestionar.
   useEffect(() => {
@@ -22,14 +23,13 @@ export default function PostForm({ defaultType = "need" }: { defaultType?: PostT
     }
   }, [state.success]);
 
+  // IMPORTANTE: el return anticipado debe ir DESPUÉS de todos los hooks.
   if (state.success) {
     return <SuccessPanel success={state.success} />;
   }
 
   const isNeed = type === "need";
   const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
-
-  const zones = useMemo(() => CITIES.find((c) => c.id === city)?.zones ?? [], [city]);
 
   const fieldClass =
     "w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ve-blue)]/30";
