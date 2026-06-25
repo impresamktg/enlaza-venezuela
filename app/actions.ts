@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createPost, resolvePost, deletePost } from "@/lib/db";
 import { CATEGORY_MAP, CITY_MAP } from "@/lib/data";
+import { isValidWhatsApp } from "@/lib/format";
 import type { FormState, PostType } from "@/lib/types";
 
 export async function createPostAction(
@@ -28,9 +29,11 @@ export async function createPostAction(
   if (title.length < 5) return { error: "El título debe tener al menos 5 caracteres." };
   if (contactName.length < 2) return { error: "Escribe tu nombre." };
 
-  const phoneDigits = contactPhone.replace(/\D/g, "");
-  if (phoneDigits.length < 10) {
-    return { error: "Escribe un número de WhatsApp válido (con código de área)." };
+  if (!isValidWhatsApp(contactPhone)) {
+    return {
+      error:
+        "Ese número de WhatsApp no parece válido. Revísalo (ej: 0412 555 1234) para que puedan contactarte.",
+    };
   }
 
   let peopleCount: number | null = null;

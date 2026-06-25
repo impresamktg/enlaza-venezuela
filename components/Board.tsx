@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CATEGORIES, CATEGORY_MAP, CITIES } from "@/lib/data";
+import { CATEGORIES, CITIES } from "@/lib/data";
 import type { Post, PostType } from "@/lib/types";
 import { getTokens } from "@/lib/manage-tokens";
 import { getSupabase } from "@/lib/supabase";
@@ -101,21 +101,6 @@ export default function Board({ posts }: { posts: Post[] }) {
     setGeoState("idle");
   }
 
-  // Resumen por categoría (panorama general, independiente de los filtros).
-  const categoryStats = useMemo(() => {
-    const m = new Map<string, { need: number; offer: number }>();
-    for (const p of posts) {
-      const e = m.get(p.category) ?? { need: 0, offer: 0 };
-      if (p.type === "need") e.need++;
-      else e.offer++;
-      m.set(p.category, e);
-    }
-    return [...m.entries()]
-      .map(([id, c]) => ({ id, ...c, total: c.need + c.offer, cat: CATEGORY_MAP[id] }))
-      .filter((x) => x.cat)
-      .sort((a, b) => b.total - a.total);
-  }, [posts]);
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
@@ -151,37 +136,6 @@ export default function Board({ posts }: { posts: Post[] }) {
 
   return (
     <section className="flex flex-col gap-5">
-      {/* Resumen por categoría — clic para filtrar */}
-      {categoryStats.length > 0 && (
-        <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1">
-          {categoryStats.map((s) => {
-            const active = category === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => setCategory(active ? "all" : s.id)}
-                className="shrink-0 flex items-center gap-2.5 rounded-xl border bg-[var(--color-surface)] px-3 py-2 transition-colors hover:border-[var(--color-ink)]"
-                style={{ borderColor: active ? "var(--color-ink)" : "var(--color-border)" }}
-              >
-                <span className="text-xl" aria-hidden>
-                  {s.cat.icon}
-                </span>
-                <div className="text-left">
-                  <div className="text-sm font-medium leading-tight whitespace-nowrap">
-                    {s.cat.label}
-                  </div>
-                  <div className="text-xs leading-tight mt-0.5 whitespace-nowrap">
-                    <span style={{ color: "var(--color-need)" }}>🆘 {s.need}</span>
-                    <span className="text-[var(--color-muted)]"> · </span>
-                    <span style={{ color: "var(--color-offer)" }}>🙌 {s.offer}</span>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       {/* Toggle de tipo + vista */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-1.5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] p-1.5 w-full sm:w-fit">
@@ -326,6 +280,7 @@ export default function Board({ posts }: { posts: Post[] }) {
               post={post}
               manageToken={tokens[post.id]}
               distanceKm={distanceKm}
+              detailHref={`/post/${post.id}`}
             />
           ))}
         </div>

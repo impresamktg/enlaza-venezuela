@@ -22,6 +22,9 @@ export default function Footer() {
           <Link href="/recursos" className="hover:text-[var(--color-ink)]">
             Recursos oficiales y seguridad
           </Link>
+          <Link href="/aviso-legal" className="hover:text-[var(--color-ink)]">
+            Aviso legal
+          </Link>
         </nav>
       </div>
     </footer>

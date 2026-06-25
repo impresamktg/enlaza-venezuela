@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 import { timeAgo, whatsappHref } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
@@ -9,10 +10,13 @@ export default function PostCard({
   post,
   manageToken,
   distanceKm,
+  detailHref,
 }: {
   post: Post;
   manageToken?: string;
   distanceKm?: number;
+  /** Si se indica, el cuerpo de la tarjeta abre el detalle de la publicación. */
+  detailHref?: string;
 }) {
   const isNeed = post.type === "need";
   const category = CATEGORY_MAP[post.category];
@@ -25,55 +29,77 @@ export default function PostCard({
     ? `Hola ${post.contact_name}, vi tu solicitud en AyudaVenezuela ("${post.title}") y quiero ayudarte.`
     : `Hola ${post.contact_name}, vi tu oferta en AyudaVenezuela ("${post.title}") y me interesa.`;
 
-  return (
-    <article className="fade-in flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <div className="h-1 w-full" style={{ background: accent }} />
-      <div className="p-4 flex flex-col gap-3 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <span
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
-            style={{ background: softBg, color: accent }}
+  const interactive = Boolean(detailHref);
+
+  const body = (
+    <>
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
+          style={{ background: softBg, color: accent }}
+        >
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
+          {typeLabel}
+        </span>
+        <span className="text-xs text-[var(--color-muted)]">{timeAgo(post.created_at)}</span>
+      </div>
+
+      <div className="flex items-start gap-2.5">
+        <span className="text-2xl leading-none" aria-hidden>
+          {category?.icon ?? "🤝"}
+        </span>
+        <div className="min-w-0">
+          <h3
+            className={`font-semibold leading-snug${
+              interactive ? " transition-colors group-hover:text-[var(--color-ve-blue)]" : ""
+            }`}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-            {typeLabel}
-          </span>
-          <span className="text-xs text-[var(--color-muted)]">{timeAgo(post.created_at)}</span>
-        </div>
-
-        <div className="flex items-start gap-2.5">
-          <span className="text-2xl leading-none" aria-hidden>
-            {category?.icon ?? "🤝"}
-          </span>
-          <div className="min-w-0">
-            <h3 className="font-semibold leading-snug">{post.title}</h3>
-            <p className="text-xs text-[var(--color-muted)] mt-0.5">{category?.label}</p>
-          </div>
-        </div>
-
-        {post.description && (
-          <p className="text-sm text-[var(--color-ink)]/80 line-clamp-4">{post.description}</p>
-        )}
-
-        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-muted)] pt-1">
-          <span className="inline-flex items-center gap-1">
-            📍 {cityName(post.city)}
-            {post.zone ? ` · ${post.zone}` : ""}
-          </span>
-          {typeof distanceKm === "number" && (
-            <span
-              className="inline-flex items-center gap-1 font-medium"
-              style={{ color: "var(--color-ve-blue)" }}
-            >
-              {formatDistance(distanceKm)}
-            </span>
-          )}
-          {post.people_count ? (
-            <span className="inline-flex items-center gap-1">
-              👥 {post.people_count} {post.people_count === 1 ? "persona" : "personas"}
-            </span>
-          ) : null}
+            {post.title}
+          </h3>
+          <p className="text-xs text-[var(--color-muted)] mt-0.5">{category?.label}</p>
         </div>
       </div>
+
+      {post.description && (
+        <p className="text-sm text-[var(--color-ink)]/80 line-clamp-4">{post.description}</p>
+      )}
+
+      <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-muted)] pt-1">
+        <span className="inline-flex items-center gap-1">
+          📍 {cityName(post.city)}
+          {post.zone ? ` · ${post.zone}` : ""}
+        </span>
+        {typeof distanceKm === "number" && (
+          <span
+            className="inline-flex items-center gap-1 font-medium"
+            style={{ color: "var(--color-ve-blue)" }}
+          >
+            {formatDistance(distanceKm)}
+          </span>
+        )}
+        {post.people_count ? (
+          <span className="inline-flex items-center gap-1">
+            👥 {post.people_count} {post.people_count === 1 ? "persona" : "personas"}
+          </span>
+        ) : null}
+      </div>
+    </>
+  );
+
+  return (
+    <article
+      className={`fade-in flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden shadow-sm transition-shadow hover:shadow-md${
+        interactive ? " group" : ""
+      }`}
+    >
+      <div className="h-1 w-full" style={{ background: accent }} />
+      {detailHref ? (
+        <Link href={detailHref} className="p-4 flex flex-col gap-3 flex-1">
+          {body}
+        </Link>
+      ) : (
+        <div className="p-4 flex flex-col gap-3 flex-1">{body}</div>
+      )}
 
       <div className="px-4 pb-4">
         <a

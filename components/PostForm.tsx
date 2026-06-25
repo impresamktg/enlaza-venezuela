@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CATEGORIES, CITIES } from "@/lib/data";
 import type { FormState, PostType } from "@/lib/types";
 import { createPostAction } from "@/app/actions";
+import { isValidWhatsApp } from "@/lib/format";
 import { saveToken } from "@/lib/manage-tokens";
 
 const initialState: FormState = {};
@@ -22,6 +23,8 @@ export default function PostForm({
     CATEGORIES.some((c) => c.id === defaultCategory) ? defaultCategory : "",
   );
   const [city, setCity] = useState<string>("caracas");
+  const [phone, setPhone] = useState<string>("");
+  const [phoneTouched, setPhoneTouched] = useState<boolean>(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locStatus, setLocStatus] = useState<
     "idle" | "loading" | "on" | "denied" | "error"
@@ -42,6 +45,8 @@ export default function PostForm({
 
   const isNeed = type === "need";
   const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
+  const phoneValid = isValidWhatsApp(phone);
+  const phoneError = phoneTouched && phone.trim() !== "" && !phoneValid;
 
   function captureLocation() {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -284,10 +289,27 @@ export default function PostForm({
             id="contact_phone"
             name="contact_phone"
             type="tel"
+            inputMode="tel"
+            autoComplete="tel"
             required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            onBlur={() => setPhoneTouched(true)}
+            aria-invalid={phoneError}
+            aria-describedby="phone-help"
             className={fieldClass}
+            style={phoneError ? { borderColor: "var(--color-need)" } : undefined}
             placeholder="Ej: 0412 555 1234"
           />
+          <p
+            id="phone-help"
+            className="mt-1.5 text-xs"
+            style={{ color: phoneError ? "var(--color-need)" : "var(--color-muted)" }}
+          >
+            {phoneError
+              ? "Ese número no parece válido. Revisa el código de área (ej: 0412 555 1234) o usa el código de país para números de otro país."
+              : "Será el número con el que te contacten. Verifica que esté correcto."}
+          </p>
         </div>
       </div>
 
@@ -315,7 +337,7 @@ export default function PostForm({
       <div className="flex flex-col gap-3">
         <button
           type="submit"
-          disabled={pending || !category}
+          disabled={pending || !category || !phoneValid}
           className="rounded-xl text-white font-semibold py-3.5 transition disabled:opacity-50"
           style={{ background: accent }}
         >

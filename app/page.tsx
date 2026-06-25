@@ -68,24 +68,6 @@ export default async function Home({
                     para búsqueda, rescate y remoción de escombros. Refugio, alimentos y
                     salud también ayudan, pero el rescate no puede esperar.
                   </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Link
-                      href="/publicar?tipo=offer&categoria=rescate"
-                      className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-4 py-2 text-sm hover:brightness-95 transition"
-                    >
-                      ⛑️ Ofrezco para rescate
-                    </Link>
-                    <Link
-                      href="/publicar?tipo=need&categoria=rescate"
-                      className="rounded-xl border-2 font-semibold px-4 py-2 text-sm transition hover:bg-white"
-                      style={{
-                        borderColor: "var(--color-need)",
-                        color: "var(--color-need)",
-                      }}
-                    >
-                      🆘 Necesito rescate
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
