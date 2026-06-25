@@ -25,6 +25,7 @@ export default function MapView({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerRef = useRef<L.LayerGroup | null>(null);
+  const lastSigRef = useRef<string>("");
 
   // Inicializa el mapa una sola vez.
   useEffect(() => {
@@ -51,6 +52,16 @@ export default function MapView({
     const map = mapRef.current;
     const layer = layerRef.current;
     if (!map || !layer) return;
+
+    // Solo reconstruir (y reencuadrar) si cambiaron los datos: así la
+    // actualización automática no reinicia el zoom/desplazamiento del usuario.
+    const sig =
+      items
+        .map((i) => `${i.post.id}:${i.post.lat ?? ""}:${i.post.lng ?? ""}`)
+        .join("|") + `#${userLoc ? `${userLoc.lat},${userLoc.lng}` : ""}`;
+    if (sig === lastSigRef.current) return;
+    lastSigRef.current = sig;
+
     layer.clearLayers();
     const bounds: [number, number][] = [];
 

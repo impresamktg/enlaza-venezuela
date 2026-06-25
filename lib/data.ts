@@ -37,7 +37,13 @@ export const CATEGORIES: Category[] = [
     id: "rescate",
     label: "Rescate y mano de obra",
     icon: "⛑️",
-    hint: "Búsqueda y rescate, remoción de escombros, voluntarios",
+    hint: "Búsqueda y rescate, remoción de escombros",
+  },
+  {
+    id: "voluntarios",
+    label: "Voluntarios",
+    icon: "🙋",
+    hint: "Personas dispuestas a ayudar con su tiempo: logística, reparto, censo, apoyo",
   },
   {
     id: "materiales",

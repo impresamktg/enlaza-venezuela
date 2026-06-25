@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CATEGORIES, CATEGORY_MAP, CITIES } from "@/lib/data";
 import type { Post, PostType } from "@/lib/types";
 import { getTokens } from "@/lib/manage-tokens";
@@ -37,10 +38,21 @@ export default function Board({ posts }: { posts: Post[] }) {
   const [geoState, setGeoState] = useState<GeoState>("idle");
   const [view, setView] = useState<ViewMode>("list");
 
+  const router = useRouter();
+
   // Carga los tokens de gestión de las publicaciones creadas en este navegador.
   useEffect(() => {
     setTokens(getTokens());
   }, [posts]);
+
+  // Actualización automática: re-consulta el servidor cada 30 s (solo con la
+  // pestaña visible). router.refresh() conserva los filtros, vista y mapa.
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") router.refresh();
+    }, 30000);
+    return () => clearInterval(id);
+  }, [router]);
 
   function requestLocation() {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -223,9 +235,19 @@ export default function Board({ posts }: { posts: Post[] }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--color-muted)]">
-        <span>
-          {filtered.length} {filtered.length === 1 ? "publicación" : "publicaciones"}
-          {geoState === "on" && " · ordenadas por cercanía"}
+        <span className="inline-flex items-center gap-2">
+          <span
+            className="inline-flex items-center gap-1 font-medium"
+            style={{ color: "var(--color-offer)" }}
+            title="El tablón se actualiza automáticamente"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-offer)] animate-pulse" />
+            En vivo
+          </span>
+          <span>
+            {filtered.length} {filtered.length === 1 ? "publicación" : "publicaciones"}
+            {geoState === "on" && " · ordenadas por cercanía"}
+          </span>
         </span>
         <div className="flex items-center gap-3">
           {geoState === "on" ? (
