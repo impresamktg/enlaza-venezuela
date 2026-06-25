@@ -7,16 +7,13 @@ import type { Post, PostType } from "@/lib/types";
 import { getTokens } from "@/lib/manage-tokens";
 import PostCard from "./PostCard";
 
-type TypeFilter = "all" | PostType;
-
-const TYPE_TABS: { id: TypeFilter; label: string; color: string }[] = [
-  { id: "all", label: "Todo", color: "var(--color-ink)" },
+const TYPE_TABS: { id: PostType; label: string; color: string }[] = [
   { id: "need", label: "Necesitan ayuda", color: "var(--color-need)" },
   { id: "offer", label: "Ofrecen ayuda", color: "var(--color-offer)" },
 ];
 
 export default function Board({ posts }: { posts: Post[] }) {
-  const [type, setType] = useState<TypeFilter>("all");
+  const [type, setType] = useState<PostType>("need");
   const [city, setCity] = useState<string>("all");
   const [category, setCategory] = useState<string>("all");
   const [query, setQuery] = useState<string>("");
@@ -30,7 +27,7 @@ export default function Board({ posts }: { posts: Post[] }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
-      if (type !== "all" && p.type !== type) return false;
+      if (p.type !== type) return false;
       if (city !== "all" && p.city !== city) return false;
       if (category !== "all" && p.category !== category) return false;
       if (q) {
@@ -104,10 +101,9 @@ export default function Board({ posts }: { posts: Post[] }) {
         <span>
           {filtered.length} {filtered.length === 1 ? "publicación" : "publicaciones"}
         </span>
-        {(type !== "all" || city !== "all" || category !== "all" || query) && (
+        {(city !== "all" || category !== "all" || query) && (
           <button
             onClick={() => {
-              setType("all");
               setCity("all");
               setCategory("all");
               setQuery("");
