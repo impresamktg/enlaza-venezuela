@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Paleta base */
+  --color-bg: #f7f7f6;
+  --color-surface: #ffffff;
+  --color-ink: #1c1917; /* stone-900 */
+  --color-muted: #78716c; /* stone-500 */
+  --color-border: #e7e5e4; /* stone-200 */
+
+  /* Bandera de Venezuela (acento sutil) */
+  --color-ve-yellow: #ffcc00;
+  --color-ve-blue: #1e3a8a;
+  --color-ve-red: #cf142b;
+
+  /* Codificación por tipo */
+  --color-need: #e11d48; /* rose-600  — quien NECESITA */
+  --color-need-soft: #fff1f2; /* rose-50 */
+  --color-offer: #059669; /* emerald-600 — quien OFRECE */
+  --color-offer-soft: #ecfdf5; /* emerald-50 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Franja tricolor de la bandera venezolana */
+.flag-stripe {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    var(--color-ve-yellow) 0 33.33%,
+    var(--color-ve-blue) 33.33% 66.66%,
+    var(--color-ve-red) 66.66% 100%
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in {
+    animation: fade-in 0.4s ease both;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
