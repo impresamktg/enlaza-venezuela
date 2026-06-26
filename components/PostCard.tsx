@@ -133,7 +133,7 @@ export default function PostCard({
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-white font-semibold py-2.5 hover:brightness-95 transition"
           >
             <span aria-hidden>💬</span>
-            Contactar a {post.contact_name.split(" ")[0]}
+            WhatsApp
           </a>
           {mapsHref && (
             <a

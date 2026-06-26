@@ -100,7 +100,7 @@ export default function MapView({
           <div style="font-weight:600;margin:2px 0;color:#1c1917">${esc(post.title)}</div>
           <div style="font-size:12px;color:#78716c">${cat ? esc(cat.icon + " " + cat.label) : ""}</div>
           <div style="font-size:12px;color:#78716c;margin-top:2px">📍 ${esc(cityName(post.city))}${post.zone ? " · " + esc(post.zone) : ""}${esc(dist)}</div>
-          <a href="${wa}" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-top:8px;background:#25D366;color:#fff;font-weight:600;padding:7px;border-radius:8px;text-decoration:none">💬 Contactar a ${esc(post.contact_name.split(" ")[0])}</a>
+          <a href="${wa}" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-top:8px;background:#25D366;color:#fff;font-weight:600;padding:7px;border-radius:8px;text-decoration:none">💬 WhatsApp</a>
           ${mapsBtn}
         </div>`,
       );
