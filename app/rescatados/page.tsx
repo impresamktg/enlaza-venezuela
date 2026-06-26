@@ -3,7 +3,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import RescuedRegistry from "@/components/RescuedRegistry";
-import { listPosts } from "@/lib/db";
+import { listRescued } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RescatadosPage() {
-  const posts = await listPosts();
-  const rescued = posts
-    .filter((p) => p.rescue_state === "rescatados")
-    .sort((a, b) => (b.rescued_at ?? "").localeCompare(a.rescued_at ?? ""));
+  const rescued = await listRescued();
 
   return (
     <>

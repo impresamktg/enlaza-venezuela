@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, CITIES } from "@/lib/data";
-import type { Post, PostType } from "@/lib/types";
+import { isRescueClosed, type Post, type PostType } from "@/lib/types";
 import { getTokens } from "@/lib/manage-tokens";
 import { getSupabase } from "@/lib/supabase";
 import { postCoords, haversineKm, type LatLng } from "@/lib/geo";
@@ -34,7 +34,14 @@ const TYPE_TABS: { id: PostType; label: string; color: string }[] = [
   { id: "offer", label: "Ofrecen ayuda", color: "var(--color-offer)" },
 ];
 
-export default function Board({ posts }: { posts: Post[] }) {
+export default function Board({
+  posts,
+  rescuedCount = 0,
+}: {
+  posts: Post[];
+  /** Total de casos rescatados (registro permanente, incluye los resueltos). */
+  rescuedCount?: number;
+}) {
   const [type, setType] = useState<PostType>("need");
   const [city, setCity] = useState<string>("all");
   const [category, setCategory] = useState<string>("all");
@@ -110,8 +117,8 @@ export default function Board({ posts }: { posts: Post[] }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
-      // Los casos marcados "rescatados" salen del tablón activo (van al registro).
-      if (p.rescue_state === "rescatados") return false;
+      // Los casos cerrados (rescatados/resueltos) salen del tablón activo.
+      if (isRescueClosed(p.rescue_state)) return false;
       if (p.type !== type) return false;
       if (city !== "all" && p.city !== city) return false;
       if (category !== "all" && p.category !== category) return false;
@@ -160,10 +167,6 @@ export default function Board({ posts }: { posts: Post[] }) {
   // completa de rescate vive en /rescate (vista con mapa).
   const listItems = useMemo(() => displayed.slice(0, visible), [displayed, visible]);
   const hasMore = displayed.length > visible;
-  const rescuedCount = useMemo(
-    () => posts.filter((p) => p.rescue_state === "rescatados").length,
-    [posts],
-  );
 
   const selectClass =
     "w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ve-blue)]/30";

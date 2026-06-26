@@ -108,10 +108,15 @@ export async function deletePostAction(
 /** Marca el progreso de un rescate. Sin token: cualquiera en sitio puede actualizarlo. */
 export async function setRescueStateAction(
   id: string,
-  state: "en_camino" | "rescatados" | null,
+  state: "en_camino" | "rescatados" | "resuelto" | null,
 ): Promise<{ ok: boolean }> {
   if (!id) return { ok: false };
-  if (state !== null && state !== "en_camino" && state !== "rescatados") {
+  if (
+    state !== null &&
+    state !== "en_camino" &&
+    state !== "rescatados" &&
+    state !== "resuelto"
+  ) {
     return { ok: false };
   }
   const ok = await setRescueState(id, state);

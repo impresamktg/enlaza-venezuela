@@ -2,8 +2,18 @@ export type PostType = "need" | "offer";
 
 export type PostStatus = "active" | "resolved";
 
-/** Estado en vivo de un rescate. null = reportado (aún sin atender). */
-export type RescueState = "en_camino" | "rescatados" | null;
+/**
+ * Estado en vivo de un rescate. null = reportado (aún sin atender).
+ * Estados terminales (salen del tablón activo): "rescatados" = personas
+ * rescatadas (cuenta en el registro); "resuelto" = solicitud atendida sin
+ * rescate de personas (no cuenta).
+ */
+export type RescueState = "en_camino" | "rescatados" | "resuelto" | null;
+
+/** Estados terminales de un rescate: salen del tablón activo. */
+export function isRescueClosed(state: RescueState): boolean {
+  return state === "rescatados" || state === "resuelto";
+}
 
 export interface Post {
   id: string;

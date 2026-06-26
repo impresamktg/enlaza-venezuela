@@ -3,7 +3,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import RescueBoard from "@/components/RescueBoard";
-import { listPosts } from "@/lib/db";
+import { listPosts, listRescued } from "@/lib/db";
+import { isRescueClosed } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -14,16 +15,15 @@ export const metadata: Metadata = {
 };
 
 export default async function RescatePage() {
-  const posts = await listPosts();
+  const [posts, rescued] = await Promise.all([listPosts(), listRescued()]);
   const isRescue = (p: (typeof posts)[number]) =>
     p.type === "need" &&
     (p.trapped || p.category === "rescate" || p.category === "maquinaria");
   const rescue = posts
-    .filter((p) => isRescue(p) && p.rescue_state !== "rescatados")
+    .filter((p) => isRescue(p) && !isRescueClosed(p.rescue_state))
     .sort((a, b) => (a.trapped === b.trapped ? 0 : a.trapped ? -1 : 1));
-  const rescuedCount = posts.filter(
-    (p) => isRescue(p) && p.rescue_state === "rescatados",
-  ).length;
+  // Registro permanente: cuenta todos los rescatados, no solo los activos.
+  const rescuedCount = rescued.length;
 
   return (
     <>

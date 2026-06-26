@@ -2,7 +2,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Board from "@/components/Board";
 import Footer from "@/components/Footer";
-import { listPosts, isDemoMode } from "@/lib/db";
+import { listPosts, listRescued, isDemoMode } from "@/lib/db";
+import { isRescueClosed } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +12,13 @@ export default async function Home({
 }: {
   searchParams: Promise<{ publicado?: string; tipo?: string }>;
 }) {
-  const [posts, sp] = await Promise.all([listPosts(), searchParams]);
-  // Los casos rescatados no cuentan como solicitudes activas (van al registro).
-  const open = posts.filter((p) => p.rescue_state !== "rescatados");
+  const [posts, rescued, sp] = await Promise.all([
+    listPosts(),
+    listRescued(),
+    searchParams,
+  ]);
+  // Los casos cerrados (rescatados/resueltos) no cuentan como solicitudes activas.
+  const open = posts.filter((p) => !isRescueClosed(p.rescue_state));
   const needs = open.filter((p) => p.type === "need").length;
   const offers = open.filter((p) => p.type === "offer").length;
   const rescueActivos = open.filter(
@@ -21,7 +26,8 @@ export default async function Home({
       p.type === "need" &&
       (p.trapped || p.category === "rescate" || p.category === "maquinaria"),
   ).length;
-  const rescuedCount = posts.filter((p) => p.rescue_state === "rescatados").length;
+  // El registro de rescatados es permanente: cuenta todos, no solo los activos.
+  const rescuedCount = rescued.length;
   const published = sp.publicado === "1";
 
   return (
@@ -148,7 +154,7 @@ export default async function Home({
               ✅ ¡Tu publicación está activa! Pronto alguien te contactará por WhatsApp.
             </div>
           )}
-          <Board posts={posts} />
+          <Board posts={posts} rescuedCount={rescuedCount} />
         </div>
       </main>
 

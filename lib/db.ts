@@ -71,6 +71,35 @@ export async function listPosts(filter: ListFilter = {}): Promise<Post[]> {
   return (data ?? []) as unknown as Post[];
 }
 
+/**
+ * Casos marcados como "rescatados", para el registro permanente (/rescatados) y
+ * los contadores. A diferencia de listPosts, NO filtra por status: un caso
+ * rescatado debe seguir en el registro aunque su autor lo haya marcado resuelto.
+ * (Requiere una política RLS que permita leer filas con rescue_state='rescatados'.)
+ */
+export async function listRescued(): Promise<Post[]> {
+  const supabase = getSupabase();
+
+  if (!supabase) {
+    return memoryPosts
+      .filter((p) => p.rescue_state === "rescatados")
+      .sort((a, b) => (b.rescued_at ?? "").localeCompare(a.rescued_at ?? ""))
+      .map(strip);
+  }
+
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(PUBLIC_COLUMNS)
+    .eq("rescue_state", "rescatados")
+    .order("rescued_at", { ascending: false })
+    .limit(500);
+  if (error) {
+    console.error("[db] listRescued error:", error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as Post[];
+}
+
 export async function getPostById(id: string): Promise<Post | null> {
   const supabase = getSupabase();
   if (!supabase) {
@@ -183,7 +212,7 @@ export async function resolvePost(id: string, token: string): Promise<boolean> {
 /** Marca el progreso de un rescate (en_camino / rescatados / null). Sin token: cualquiera puede actualizarlo. */
 export async function setRescueState(
   id: string,
-  state: "en_camino" | "rescatados" | null,
+  state: "en_camino" | "rescatados" | "resuelto" | null,
 ): Promise<boolean> {
   const supabase = getSupabase();
   if (!supabase) {
