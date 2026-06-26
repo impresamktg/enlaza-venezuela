@@ -125,9 +125,15 @@ export default function Board({ posts }: { posts: Post[] }) {
       }
       return { post, distanceKm };
     });
-    if (userLoc) {
-      items.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
-    }
+    // Personas atrapadas siempre primero; luego por cercanía (si hay ubicación)
+    // y, en igualdad, se conserva el orden por más reciente.
+    items.sort((a, b) => {
+      const ta = a.post.trapped ? 0 : 1;
+      const tb = b.post.trapped ? 0 : 1;
+      if (ta !== tb) return ta - tb;
+      if (userLoc) return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
+      return 0;
+    });
     return items;
   }, [filtered, userLoc]);
 

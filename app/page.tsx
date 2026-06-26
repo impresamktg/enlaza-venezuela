@@ -68,6 +68,21 @@ export default async function Home({
                     para búsqueda, rescate y remoción de escombros. Refugio, alimentos y
                     salud también ayudan, pero el rescate no puede esperar.
                   </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link
+                      href="/reportar"
+                      className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-4 py-2.5 text-sm hover:brightness-95 transition"
+                    >
+                      🆘 Reportar persona atrapada
+                    </Link>
+                    <Link
+                      href="/rescate"
+                      className="rounded-xl border-2 font-semibold px-4 py-2.5 text-sm transition hover:bg-white"
+                      style={{ borderColor: "var(--color-need)", color: "var(--color-need)" }}
+                    >
+                      🗺️ Ver mapa de rescate
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

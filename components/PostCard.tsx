@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
-import { timeAgo, whatsappHref } from "@/lib/format";
+import { timeAgo, whatsappHref, mapsSearchHref } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
 import type { Post } from "@/lib/types";
 import ManagePost from "./ManagePost";
 import SharePost from "./SharePost";
+import RescueStatus from "./RescueStatus";
 
 export default function PostCard({
   post,
@@ -30,9 +31,24 @@ export default function PostCard({
     : `Hola ${post.contact_name}, vi tu oferta en Enlaza Venezuela ("${post.title}") y me interesa.`;
 
   const interactive = Boolean(detailHref);
+  const isRescue =
+    post.trapped || post.category === "rescate" || post.category === "maquinaria";
+  const mapsHref = post.address
+    ? mapsSearchHref([post.address, post.zone, cityName(post.city), "Venezuela"])
+    : null;
 
   const body = (
     <>
+      {post.trapped && (
+        <div
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold"
+          style={{ background: "var(--color-need)", color: "#fff" }}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+          🆘 PERSONAS ATRAPADAS
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-2">
         <span
           className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
@@ -59,6 +75,13 @@ export default function PostCard({
           <p className="text-xs text-[var(--color-muted)] mt-0.5">{category?.label}</p>
         </div>
       </div>
+
+      {post.address && (
+        <p className="text-sm font-medium text-[var(--color-ink)] flex items-start gap-1.5">
+          <span aria-hidden>📌</span>
+          <span>{post.address}</span>
+        </p>
+      )}
 
       {post.description && (
         <p className="text-sm text-[var(--color-ink)]/80 line-clamp-4">{post.description}</p>
@@ -102,15 +125,28 @@ export default function PostCard({
       )}
 
       <div className="px-4 pb-4">
-        <a
-          href={whatsappHref(post.contact_phone, waMessage)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#25D366] text-white font-semibold py-2.5 hover:brightness-95 transition"
-        >
-          <span aria-hidden>💬</span>
-          Contactar a {post.contact_name.split(" ")[0]}
-        </a>
+        <div className="flex gap-2">
+          <a
+            href={whatsappHref(post.contact_phone, waMessage)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-white font-semibold py-2.5 hover:brightness-95 transition"
+          >
+            <span aria-hidden>💬</span>
+            Contactar a {post.contact_name.split(" ")[0]}
+          </a>
+          {mapsHref && (
+            <a
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] font-semibold px-3 py-2.5 text-[var(--color-ink)] hover:border-[var(--color-ve-blue)] transition whitespace-nowrap"
+            >
+              🧭 Cómo llegar
+            </a>
+          )}
+        </div>
+        {isRescue && <RescueStatus postId={post.id} state={post.rescue_state} />}
         <div className="mt-2 flex justify-center">
           <SharePost postId={post.id} title={post.title} />
         </div>

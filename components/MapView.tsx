@@ -6,7 +6,7 @@ import "leaflet/dist/leaflet.css";
 import type { Post } from "@/lib/types";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 import { postCoords, formatDistance, type LatLng } from "@/lib/geo";
-import { whatsappHref } from "@/lib/format";
+import { whatsappHref, mapsSearchHref } from "@/lib/format";
 
 const CARACAS: [number, number] = [10.4806, -66.9036];
 
@@ -77,6 +77,15 @@ export default function MapView({
         post.contact_phone,
         `Hola ${post.contact_name}, vi tu publicación en Enlaza Venezuela ("${post.title}").`,
       );
+      const maps = post.address
+        ? mapsSearchHref([post.address, post.zone, cityName(post.city), "Venezuela"])
+        : null;
+      const trappedTag = post.trapped
+        ? `<div style="display:inline-block;background:#e11d48;color:#fff;font-weight:700;font-size:10px;padding:2px 6px;border-radius:6px;margin-bottom:4px">🆘 PERSONAS ATRAPADAS</div>`
+        : "";
+      const mapsBtn = maps
+        ? `<a href="${maps}" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-top:6px;border:1px solid #d6d3d1;color:#1c1917;font-weight:600;padding:7px;border-radius:8px;text-decoration:none">🧭 Cómo llegar</a>`
+        : "";
       const marker = L.circleMarker([c.lat, c.lng], {
         radius: 9,
         color: "#fff",
@@ -86,11 +95,13 @@ export default function MapView({
       });
       marker.bindPopup(
         `<div style="min-width:190px;font-family:system-ui,sans-serif">
+          ${trappedTag}
           <div style="font-weight:700;font-size:12px;color:${color}">${isNeed ? "NECESITA" : "OFRECE"}</div>
           <div style="font-weight:600;margin:2px 0;color:#1c1917">${esc(post.title)}</div>
           <div style="font-size:12px;color:#78716c">${cat ? esc(cat.icon + " " + cat.label) : ""}</div>
           <div style="font-size:12px;color:#78716c;margin-top:2px">📍 ${esc(cityName(post.city))}${post.zone ? " · " + esc(post.zone) : ""}${esc(dist)}</div>
           <a href="${wa}" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-top:8px;background:#25D366;color:#fff;font-weight:600;padding:7px;border-radius:8px;text-decoration:none">💬 Contactar a ${esc(post.contact_name.split(" ")[0])}</a>
+          ${mapsBtn}
         </div>`,
       );
       marker.addTo(layer);

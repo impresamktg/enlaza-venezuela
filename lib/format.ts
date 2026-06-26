@@ -33,6 +33,12 @@ export function isValidWhatsApp(raw: string): boolean {
   return digits.length >= 8 && digits.length <= 15 && !digits.startsWith("0");
 }
 
+/** Enlace de Google Maps a partir de partes de una dirección (para "Cómo llegar"). */
+export function mapsSearchHref(parts: (string | null | undefined)[]): string {
+  const q = parts.filter((p) => p && p.trim()).join(", ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+}
+
 /** Construye un enlace de WhatsApp con mensaje opcional. */
 export function whatsappHref(phone: string, message?: string): string {
   const num = normalizePhone(phone);

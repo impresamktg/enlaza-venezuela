@@ -2,6 +2,9 @@ export type PostType = "need" | "offer";
 
 export type PostStatus = "active" | "resolved";
 
+/** Estado en vivo de un rescate. null = reportado (aún sin atender). */
+export type RescueState = "en_camino" | "rescatados" | null;
+
 export interface Post {
   id: string;
   type: PostType;
@@ -17,6 +20,9 @@ export interface Post {
   lng: number | null;
   status: PostStatus;
   created_at: string; // ISO timestamp
+  address: string | null; // dirección/edificio exacto (rescate) para "Cómo llegar"
+  trapped: boolean; // hay personas atrapadas
+  rescue_state: RescueState; // progreso en vivo del rescate
 }
 
 /** Resultado de crear una publicación: la publicación y su token de gestión. */
@@ -48,4 +54,6 @@ export interface NewPost {
   people_count?: number | null;
   lat?: number | null;
   lng?: number | null;
+  address?: string | null;
+  trapped?: boolean;
 }

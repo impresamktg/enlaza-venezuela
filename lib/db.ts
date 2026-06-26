@@ -6,7 +6,7 @@ const TABLE = "posts";
 
 /** Columnas públicas (nunca incluir manage_token). */
 const PUBLIC_COLUMNS =
-  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at";
+  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at,address,trapped,rescue_state";
 
 /** Registro interno en memoria: una publicación + su token de gestión. */
 type MemPost = Post & { manage_token: string };
@@ -104,6 +104,9 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     people_count: input.people_count ?? null,
     lat: input.lat ?? null,
     lng: input.lng ?? null,
+    address: input.address?.trim() || null,
+    trapped: input.trapped ?? false,
+    rescue_state: null,
   };
 
   if (!supabase) {
@@ -131,6 +134,8 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     p_people_count: base.people_count,
     p_lat: base.lat,
     p_lng: base.lng,
+    p_address: base.address ?? "",
+    p_trapped: base.trapped,
   });
 
   if (!rpcError && rpcData && rpcData[0]) {
@@ -169,6 +174,29 @@ export async function resolvePost(id: string, token: string): Promise<boolean> {
   });
   if (error) {
     console.error("[db] resolvePost error:", error.message);
+    return false;
+  }
+  return Boolean(data);
+}
+
+/** Marca el progreso de un rescate (en_camino / rescatados / null). Sin token: cualquiera puede actualizarlo. */
+export async function setRescueState(
+  id: string,
+  state: "en_camino" | "rescatados" | null,
+): Promise<boolean> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    const p = memoryPosts.find((x) => x.id === id);
+    if (!p) return false;
+    p.rescue_state = state;
+    return true;
+  }
+  const { data, error } = await supabase.rpc("set_rescue_state", {
+    p_id: id,
+    p_state: state,
+  });
+  if (error) {
+    console.error("[db] setRescueState error:", error.message);
     return false;
   }
   return Boolean(data);
