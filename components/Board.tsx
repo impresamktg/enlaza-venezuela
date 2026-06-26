@@ -9,7 +9,12 @@ import type { Post, PostType } from "@/lib/types";
 import { getTokens } from "@/lib/manage-tokens";
 import { getSupabase } from "@/lib/supabase";
 import { postCoords, haversineKm, type LatLng } from "@/lib/geo";
+import { isUrgent } from "@/lib/board-page";
 import PostCard from "./PostCard";
+
+// Cuántas tarjetas añade cada "Ver más" (y el bloque inicial). Múltiplo de 3
+// para llenar filas completas en la rejilla de 3 columnas en escritorio.
+const PAGE_STEP = 9;
 
 // El mapa usa Leaflet (solo en el navegador), por eso se carga sin SSR.
 const MapView = dynamic(() => import("./MapView"), {
@@ -38,6 +43,7 @@ export default function Board({ posts }: { posts: Post[] }) {
   const [userLoc, setUserLoc] = useState<LatLng | null>(null);
   const [geoState, setGeoState] = useState<GeoState>("idle");
   const [view, setView] = useState<ViewMode>("list");
+  const [visible, setVisible] = useState(PAGE_STEP);
 
   const router = useRouter();
 
@@ -127,17 +133,37 @@ export default function Board({ posts }: { posts: Post[] }) {
       }
       return { post, distanceKm };
     });
-    // Personas atrapadas siempre primero; luego por cercanía (si hay ubicación)
-    // y, en igualdad, se conserva el orden por más reciente.
+    // Urgentes (atrapados + rescate/maquinaria) siempre primero; luego por
+    // cercanía (si hay ubicación) y, en igualdad, se conserva el orden reciente.
     items.sort((a, b) => {
-      const ta = a.post.trapped ? 0 : 1;
-      const tb = b.post.trapped ? 0 : 1;
-      if (ta !== tb) return ta - tb;
+      const ua = isUrgent(a.post) ? 0 : 1;
+      const ub = isUrgent(b.post) ? 0 : 1;
+      if (ua !== ub) return ua - ub;
       if (userLoc) return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
       return 0;
     });
     return items;
   }, [filtered, userLoc]);
+
+  // Al cambiar filtros/tipo/búsqueda, reinicia el "Ver más". Patrón "ajustar estado
+  // durante el render" recomendado por React, en vez de un efecto que encadena renders.
+  const filterKey = `${type}|${city}|${category}|${query}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setVisible(PAGE_STEP);
+  }
+
+  // Lista acotada que crece con "Ver más" en la misma página (sin recargar ni
+  // cambiar de página), para no renderizar cientos de tarjetas en redes lentas.
+  // Las urgentes van ordenadas primero, así se ven antes que nada; la cola
+  // completa de rescate vive en /rescate (vista con mapa).
+  const listItems = useMemo(() => displayed.slice(0, visible), [displayed, visible]);
+  const hasMore = displayed.length > visible;
+  const rescuedCount = useMemo(
+    () => posts.filter((p) => p.rescue_state === "rescatados").length,
+    [posts],
+  );
 
   const selectClass =
     "w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ve-blue)]/30";
@@ -227,7 +253,7 @@ export default function Board({ posts }: { posts: Post[] }) {
             style={{ color: "var(--color-offer)" }}
             title="El tablón se actualiza automáticamente"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-offer)] animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-offer)] pulse-dot" />
             En vivo
           </span>
           <span>
@@ -236,6 +262,13 @@ export default function Board({ posts }: { posts: Post[] }) {
           </span>
         </span>
         <div className="flex items-center gap-3">
+          <Link
+            href="/rescatados"
+            className="inline-flex items-center gap-1.5 font-medium hover:underline"
+            style={{ color: "var(--color-offer)" }}
+          >
+            ✅ Ver rescatados{rescuedCount > 0 ? ` (${rescuedCount})` : ""}
+          </Link>
           {geoState === "on" ? (
             <button
               onClick={disableLocation}
@@ -281,17 +314,41 @@ export default function Board({ posts }: { posts: Post[] }) {
       ) : view === "map" ? (
         <MapView items={displayed} userLoc={userLoc} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayed.map(({ post, distanceKm }) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              manageToken={tokens[post.id]}
-              distanceKm={distanceKm}
-              detailHref={`/post/${post.id}`}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {listItems.map(({ post, distanceKm }) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                manageToken={tokens[post.id]}
+                distanceKm={distanceKm}
+                detailHref={`/post/${post.id}`}
+              />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="mt-2 flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setVisible((v) => v + PAGE_STEP)}
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 font-semibold min-h-[48px] hover:border-[var(--color-ve-blue)] transition"
+              >
+                Ver más publicaciones
+              </button>
+              <span className="text-xs text-[var(--color-muted)] text-center">
+                Mostrando {listItems.length} de {displayed.length} ·{" "}
+                <button
+                  type="button"
+                  onClick={() => setVisible(displayed.length)}
+                  className="underline hover:text-[var(--color-ink)]"
+                >
+                  Ver todas
+                </button>
+              </span>
+            </div>
+          )}
+        </>
       )}
     </section>
   );

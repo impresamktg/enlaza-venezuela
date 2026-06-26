@@ -16,6 +16,11 @@ export default async function Home({
   const open = posts.filter((p) => p.rescue_state !== "rescatados");
   const needs = open.filter((p) => p.type === "need").length;
   const offers = open.filter((p) => p.type === "offer").length;
+  const rescueActivos = open.filter(
+    (p) =>
+      p.type === "need" &&
+      (p.trapped || p.category === "rescate" || p.category === "maquinaria"),
+  ).length;
   const rescuedCount = posts.filter((p) => p.rescue_state === "rescatados").length;
   const published = sp.publicado === "1";
 
@@ -34,26 +39,31 @@ export default async function Home({
         {/* Hero / situación */}
         <section className="bg-[var(--color-surface)] border-b border-[var(--color-border)]">
           <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
-            <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-need-soft)] text-[var(--color-need)] text-xs font-semibold px-3 py-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-need)] animate-pulse" />
-              Emergencia · Terremotos del 24 de junio de 2026
-            </span>
-            <h1 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight max-w-2xl">
-              Conectamos a quien <span className="text-[var(--color-offer)]">ofrece ayuda</span>{" "}
-              con quien la <span className="text-[var(--color-need)]">necesita</span>
-            </h1>
-            <p className="mt-3 text-[var(--color-muted)] max-w-2xl">
-              Tras los sismos de magnitud 7.2 y 7.5 que afectaron a Caracas, La Guaira y el
-              centro del país, esta plataforma comunitaria conecta directamente, por
-              WhatsApp, a quien puede ayudar con quien lo necesita.
-            </p>
+            {/* Hero a dos columnas en escritorio: texto + cifras a la izquierda, bloque
+                crítico de rescate a la derecha. En móvil se apila con el rescate alto. */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] lg:gap-x-10 gap-y-6 lg:items-start">
+              {/* Texto — columna izquierda, fila 1 */}
+              <div className="lg:col-start-1 lg:row-start-1">
+                <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-need-soft)] text-[var(--color-need)] text-xs font-semibold px-3 py-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-need)] pulse-dot" />
+                  Emergencia · Terremotos del 24 de junio de 2026
+                </span>
+                <h1 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">
+                  Conectamos a quien <span className="text-[var(--color-offer)]">ofrece ayuda</span>{" "}
+                  con quien la <span className="text-[var(--color-need)]">necesita</span>
+                </h1>
+                <p className="mt-3 text-[var(--color-muted)] max-w-prose">
+                  Tras los sismos de magnitud 7.2 y 7.5 que afectaron a Caracas, La Guaira y el
+                  centro del país, esta plataforma comunitaria conecta directamente, por
+                  WhatsApp, a quien puede ayudar con quien lo necesita.
+                </p>
+              </div>
 
-            {/* Prioridad: rescate + tarjeta de rescatados */}
-            <div className="mt-5 flex flex-col lg:flex-row gap-4 max-w-4xl">
+              {/* N1 · bloque crítico — columna derecha en escritorio, alto en móvil */}
               <div
-                className="flex-1 rounded-2xl border-2 p-4 sm:p-5"
+                className="lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-2xl border p-4 sm:p-5"
                 style={{
-                  borderColor: "var(--color-need)",
+                  borderColor: "var(--color-need-strong)",
                   background: "var(--color-need-soft)",
                 }}
               >
@@ -62,80 +72,71 @@ export default async function Home({
                     ⛑️
                   </span>
                   <div>
-                    <h2 className="font-bold text-[var(--color-need)]">
+                    <h2 className="font-bold" style={{ color: "var(--color-need-strong)" }}>
                       La prioridad es el rescate
                     </h2>
                     <p className="text-sm mt-1 text-[var(--color-ink)]/80">
-                      Las autoridades no tienen los medios, las herramientas ni la gente
-                      suficientes. Lo más urgente:{" "}
+                      Las autoridades no tienen los medios suficientes. Lo más urgente:{" "}
                       <strong>maquinaria pesada, herramientas y voluntarios con experiencia</strong>{" "}
-                      para búsqueda, rescate y remoción de escombros. Refugio, alimentos y
-                      salud también ayudan, pero el rescate no puede esperar.
+                      para búsqueda, rescate y remoción de escombros.
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <Link
-                        href="/reportar"
-                        className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-4 py-2.5 text-sm hover:brightness-95 transition"
-                      >
-                        🆘 Reportar persona atrapada
-                      </Link>
-                      <Link
-                        href="/rescate"
-                        className="rounded-xl border-2 font-semibold px-4 py-2.5 text-sm transition hover:bg-white"
-                        style={{ borderColor: "var(--color-need)", color: "var(--color-need)" }}
-                      >
-                        🗺️ Ver mapa de rescate
-                      </Link>
-                    </div>
                   </div>
+                </div>
+                <Link
+                  href="/reportar"
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl text-white font-semibold min-h-[48px] px-4 hover:brightness-95 transition"
+                  style={{ background: "var(--color-need-strong)" }}
+                >
+                  🆘 Reportar persona atrapada
+                </Link>
+                <Link
+                  href="/rescate"
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border bg-[var(--color-surface)] font-semibold px-4 py-2.5 transition hover:bg-[var(--color-bg)]"
+                  style={{
+                    borderColor: "color-mix(in srgb, var(--color-need) 35%, var(--color-border))",
+                    color: "var(--color-need)",
+                  }}
+                >
+                  🗺️ Mapa de rescate{rescueActivos > 0 ? ` · ${rescueActivos} activos` : ""}
+                </Link>
+              </div>
+
+              {/* N2 · acciones generales unificadas — solo móvil (en escritorio se usa el
+                  botón Publicar del header y el toggle del tablón) */}
+              <div className="lg:hidden">
+                <p className="text-sm font-medium text-[var(--color-muted)] mb-2">
+                  ¿Otro tipo de ayuda? También coordinamos refugio, alimentos, salud y más:
+                </p>
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <Link
+                    href="/publicar?tipo=need"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[var(--color-need)] text-white font-semibold min-h-[48px] px-4 hover:brightness-95 transition"
+                  >
+                    🆘 Necesito
+                  </Link>
+                  <Link
+                    href="/publicar?tipo=offer"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[var(--color-offer)] text-white font-semibold min-h-[48px] px-4 hover:brightness-95 transition"
+                  >
+                    🙌 Ofrezco
+                  </Link>
                 </div>
               </div>
 
-              {/* Tarjeta liviana: personas rescatadas */}
-              <Link
-                href="/rescatados"
-                className="flex flex-col justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 lg:w-52 shrink-0 transition hover:border-[var(--color-offer)] hover:shadow-sm"
-              >
-                <span className="inline-flex items-center gap-1.5 font-semibold" style={{ color: "var(--color-offer)" }}>
-                  ✅ Rescatados
+              {/* N3 · cifras como texto — columna izquierda fila 2 en escritorio */}
+              <div className="lg:col-start-1 lg:row-start-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm self-start">
+                <span>
+                  <b className="text-[var(--color-need)]">{needs}</b>{" "}
+                  <span className="text-[var(--color-muted)]">solicitudes activas</span>
                 </span>
-                <span className="text-sm text-[var(--color-muted)] mt-0.5">
-                  {rescuedCount > 0
-                    ? `${rescuedCount} ${rescuedCount === 1 ? "caso" : "casos"}`
-                    : "Registro de casos"}
+                <span>
+                  <b className="text-[var(--color-offer)]">{offers}</b>{" "}
+                  <span className="text-[var(--color-muted)]">ofertas de ayuda</span>
                 </span>
-                <span className="text-sm font-medium mt-2" style={{ color: "var(--color-offer)" }}>
-                  Ver registro →
-                </span>
-              </Link>
-            </div>
-
-            <p className="mt-6 text-sm font-medium text-[var(--color-muted)]">
-              ¿Otro tipo de ayuda? También coordinamos refugio, alimentos, salud y más:
-            </p>
-            <div className="mt-2 flex flex-wrap items-center gap-3">
-              <Link
-                href="/publicar?tipo=need"
-                className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-5 py-3 hover:brightness-95 transition"
-              >
-                🆘 Necesito ayuda
-              </Link>
-              <Link
-                href="/publicar?tipo=offer"
-                className="rounded-xl bg-[var(--color-offer)] text-white font-semibold px-5 py-3 hover:brightness-95 transition"
-              >
-                🙌 Quiero ayudar
-              </Link>
-            </div>
-
-            <div className="mt-6 flex gap-6 text-sm">
-              <div>
-                <div className="text-2xl font-bold text-[var(--color-need)]">{needs}</div>
-                <div className="text-[var(--color-muted)]">solicitudes activas</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-[var(--color-offer)]">{offers}</div>
-                <div className="text-[var(--color-muted)]">ofertas de ayuda</div>
+                <Link href="/rescatados" className="hover:underline">
+                  <b className="text-[var(--color-offer)]">{rescuedCount}</b>{" "}
+                  <span className="text-[var(--color-muted)]">rescatados ›</span>
+                </Link>
               </div>
             </div>
           </div>

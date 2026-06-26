@@ -19,6 +19,7 @@
   /* Codificación por tipo */
   --color-need: #e11d48; /* rose-600  — quien NECESITA */
   --color-need-soft: #fff1f2; /* rose-50 */
+  --color-need-strong: #be123c; /* rose-700 — CRÍTICO: personas atrapadas / rescate (énfasis N1) */
   --color-offer: #059669; /* emerald-600 — quien OFRECE */
   --color-offer-soft: #ecfdf5; /* emerald-50 */
 }
@@ -60,5 +61,23 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Punto que late: único movimiento del sistema, sólo si el usuario lo permite.
+   Reemplaza el uso directo de animate-pulse (que ignora prefers-reduced-motion). */
+@media (prefers-reduced-motion: no-preference) {
+  .pulse-dot {
+    animation: pulse-dot 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
   }
 }

@@ -57,7 +57,7 @@ export default function RescueBoard({ posts }: { posts: Post[] }) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-3">
         <span className="inline-flex items-center gap-2 text-sm text-[var(--color-muted)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-offer)] animate-pulse" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-offer)] pulse-dot" />
           En vivo · {posts.length} {posts.length === 1 ? "reporte" : "reportes"}
         </span>
         <button
@@ -73,7 +73,7 @@ export default function RescueBoard({ posts }: { posts: Post[] }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {posts.map((p) => (
-          <PostCard key={p.id} post={p} detailHref={`/post/${p.id}`} />
+          <PostCard key={p.id} post={p} detailHref={`/post/${p.id}`} compact />
         ))}
       </div>
     </div>

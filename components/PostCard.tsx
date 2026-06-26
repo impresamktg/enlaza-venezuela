@@ -12,12 +12,16 @@ export default function PostCard({
   manageToken,
   distanceKm,
   detailHref,
+  compact = false,
 }: {
   post: Post;
   manageToken?: string;
   distanceKm?: number;
   /** Si se indica, el cuerpo de la tarjeta abre el detalle de la publicación. */
   detailHref?: string;
+  /** Variante para /rescate: comprime el cuerpo (oculta la descripción larga) y
+   *  prioriza dirección + distancia + estado para decidir en terreno. */
+  compact?: boolean;
 }) {
   const isNeed = post.type === "need";
   const category = CATEGORY_MAP[post.category];
@@ -25,6 +29,8 @@ export default function PostCard({
   const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
   const softBg = isNeed ? "var(--color-need-soft)" : "var(--color-offer-soft)";
   const typeLabel = isNeed ? "Necesita" : "Ofrece";
+  // Riel: crítico (rose-700) para personas atrapadas; si no, el color del tipo.
+  const railColor = post.trapped ? "var(--color-need-strong)" : accent;
 
   const waMessage = isNeed
     ? `Hola ${post.contact_name}, vi tu solicitud en Enlaza Venezuela ("${post.title}") y quiero ayudarte.`
@@ -42,16 +48,6 @@ export default function PostCard({
 
   const body = (
     <>
-      {post.trapped && (
-        <div
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold"
-          style={{ background: "var(--color-need)", color: "#fff" }}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-          🆘 PERSONAS ATRAPADAS
-        </div>
-      )}
-
       <div className="flex items-center justify-between gap-2">
         <span
           className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
@@ -80,13 +76,13 @@ export default function PostCard({
       </div>
 
       {post.address && (
-        <p className="text-sm font-medium text-[var(--color-ink)] flex items-start gap-1.5">
-          <span aria-hidden>📌</span>
+        <div className="flex items-start gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-2 text-sm font-semibold text-[var(--color-ink)]">
+          <span aria-hidden>📍</span>
           <span>{post.address}</span>
-        </p>
+        </div>
       )}
 
-      {post.description && (
+      {post.description && !compact && (
         <p className="text-sm text-[var(--color-ink)]/80 line-clamp-4">{post.description}</p>
       )}
 
@@ -103,7 +99,8 @@ export default function PostCard({
             {formatDistance(distanceKm)}
           </span>
         )}
-        {post.people_count ? (
+        {/* El recuento de atrapados ya va en la bandera superior — no lo repetimos aquí. */}
+        {post.people_count && !post.trapped ? (
           <span className="inline-flex items-center gap-1">
             👥 {post.people_count} {post.people_count === 1 ? "persona" : "personas"}
           </span>
@@ -114,41 +111,61 @@ export default function PostCard({
 
   return (
     <article
-      className={`fade-in flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden shadow-sm transition-shadow hover:shadow-md${
+      className={`fade-in relative flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden shadow-sm transition-shadow hover:shadow-md${
         interactive ? " group" : ""
       }`}
     >
-      <div className="h-1 w-full" style={{ background: accent }} />
+      {/* Riel vertical de color: deja escanear la urgencia en columna. */}
+      <span
+        className="absolute inset-y-0 left-0 w-1"
+        style={{ background: railColor }}
+        aria-hidden
+      />
+
+      {/* Bandera de emergencia: ancho completo, color crítico, se lee antes que el título. */}
+      {post.trapped && (
+        <div
+          className="flex items-center gap-2 py-2 pl-5 pr-3 text-xs font-bold text-white"
+          style={{ background: "var(--color-need-strong)" }}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-white pulse-dot" />
+          🆘 PERSONAS ATRAPADAS
+          {post.people_count ? ` · ${post.people_count}` : ""}
+        </div>
+      )}
+
       {detailHref ? (
-        <Link href={detailHref} className="p-4 flex flex-col gap-3 flex-1">
+        <Link href={detailHref} className="p-4 pl-5 flex flex-col gap-3 flex-1">
           {body}
         </Link>
       ) : (
-        <div className="p-4 flex flex-col gap-3 flex-1">{body}</div>
+        <div className="p-4 pl-5 flex flex-col gap-3 flex-1">{body}</div>
       )}
 
-      <div className="px-4 pb-4">
-        <div className="flex gap-2">
+      <div className="px-4 pb-4 pl-5 flex flex-col gap-2">
+        {/* Acción primaria única (N2): WhatsApp, ancho completo, ≥48px. */}
+        <a
+          href={whatsappHref(post.contact_phone, waMessage)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] text-white font-semibold min-h-[48px] px-4 hover:brightness-95 transition"
+        >
+          <span aria-hidden>💬</span>
+          WhatsApp
+        </a>
+
+        {/* Apoyo (N3): cómo llegar, contorno fino. */}
+        {mapsHref && (
           <a
-            href={whatsappHref(post.contact_phone, waMessage)}
+            href={mapsHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-white font-semibold py-2.5 hover:brightness-95 transition"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] font-semibold px-3 py-2.5 text-[var(--color-ink)] hover:border-[var(--color-ve-blue)] transition"
           >
-            <span aria-hidden>💬</span>
-            WhatsApp
+            🧭 Cómo llegar
           </a>
-          {mapsHref && (
-            <a
-              href={mapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] font-semibold px-3 py-2.5 text-[var(--color-ink)] hover:border-[var(--color-ve-blue)] transition whitespace-nowrap"
-            >
-              🧭 Cómo llegar
-            </a>
-          )}
-        </div>
+        )}
+
         {isRescue && (
           <RescueStatus
             postId={post.id}
@@ -156,11 +173,13 @@ export default function PostCard({
             rescuedAt={post.rescued_at}
           />
         )}
-        <div className="mt-2 flex justify-center">
+
+        <div className="mt-1 flex justify-center">
           <SharePost postId={post.id} title={post.title} />
         </div>
+
         {manageToken && (
-          <div className="mt-3 border-t border-[var(--color-border)] pt-3">
+          <div className="mt-2 border-t border-[var(--color-border)] pt-3">
             <ManagePost postId={post.id} token={manageToken} />
           </div>
         )}
