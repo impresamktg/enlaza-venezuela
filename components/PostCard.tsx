@@ -31,8 +31,11 @@ export default function PostCard({
     : `Hola ${post.contact_name}, vi tu oferta en Enlaza Venezuela ("${post.title}") y me interesa.`;
 
   const interactive = Boolean(detailHref);
+  // El estado de rescate solo aplica a solicitudes (alguien necesita ser rescatado),
+  // no a ofertas de ayuda en rescate.
   const isRescue =
-    post.trapped || post.category === "rescate" || post.category === "maquinaria";
+    isNeed &&
+    (post.trapped || post.category === "rescate" || post.category === "maquinaria");
   const mapsHref = post.address
     ? mapsSearchHref([post.address, post.zone, cityName(post.city), "Venezuela"])
     : null;
