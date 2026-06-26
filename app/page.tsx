@@ -16,6 +16,7 @@ export default async function Home({
   const open = posts.filter((p) => p.rescue_state !== "rescatados");
   const needs = open.filter((p) => p.type === "need").length;
   const offers = open.filter((p) => p.type === "offer").length;
+  const rescuedCount = posts.filter((p) => p.rescue_state === "rescatados").length;
   const published = sp.publicado === "1";
 
   return (
@@ -47,53 +48,66 @@ export default async function Home({
               WhatsApp, a quien puede ayudar con quien lo necesita.
             </p>
 
-            {/* Prioridad: rescate */}
-            <div
-              className="mt-5 max-w-2xl rounded-2xl border-2 p-4 sm:p-5"
-              style={{
-                borderColor: "var(--color-need)",
-                background: "var(--color-need-soft)",
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <span className="text-2xl leading-none" aria-hidden>
-                  ⛑️
-                </span>
-                <div>
-                  <h2 className="font-bold text-[var(--color-need)]">
-                    La prioridad es el rescate
-                  </h2>
-                  <p className="text-sm mt-1 text-[var(--color-ink)]/80">
-                    Las autoridades no tienen los medios, las herramientas ni la gente
-                    suficientes. Lo más urgente:{" "}
-                    <strong>maquinaria pesada, herramientas y voluntarios con experiencia</strong>{" "}
-                    para búsqueda, rescate y remoción de escombros. Refugio, alimentos y
-                    salud también ayudan, pero el rescate no puede esperar.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Link
-                      href="/reportar"
-                      className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-4 py-2.5 text-sm hover:brightness-95 transition"
-                    >
-                      🆘 Reportar persona atrapada
-                    </Link>
-                    <Link
-                      href="/rescate"
-                      className="rounded-xl border-2 font-semibold px-4 py-2.5 text-sm transition hover:bg-white"
-                      style={{ borderColor: "var(--color-need)", color: "var(--color-need)" }}
-                    >
-                      🗺️ Ver mapa de rescate
-                    </Link>
+            {/* Prioridad: rescate + tarjeta de rescatados */}
+            <div className="mt-5 flex flex-col lg:flex-row gap-4 max-w-4xl">
+              <div
+                className="flex-1 rounded-2xl border-2 p-4 sm:p-5"
+                style={{
+                  borderColor: "var(--color-need)",
+                  background: "var(--color-need-soft)",
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl leading-none" aria-hidden>
+                    ⛑️
+                  </span>
+                  <div>
+                    <h2 className="font-bold text-[var(--color-need)]">
+                      La prioridad es el rescate
+                    </h2>
+                    <p className="text-sm mt-1 text-[var(--color-ink)]/80">
+                      Las autoridades no tienen los medios, las herramientas ni la gente
+                      suficientes. Lo más urgente:{" "}
+                      <strong>maquinaria pesada, herramientas y voluntarios con experiencia</strong>{" "}
+                      para búsqueda, rescate y remoción de escombros. Refugio, alimentos y
+                      salud también ayudan, pero el rescate no puede esperar.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Link
+                        href="/reportar"
+                        className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-4 py-2.5 text-sm hover:brightness-95 transition"
+                      >
+                        🆘 Reportar persona atrapada
+                      </Link>
+                      <Link
+                        href="/rescate"
+                        className="rounded-xl border-2 font-semibold px-4 py-2.5 text-sm transition hover:bg-white"
+                        style={{ borderColor: "var(--color-need)", color: "var(--color-need)" }}
+                      >
+                        🗺️ Ver mapa de rescate
+                      </Link>
+                    </div>
                   </div>
-                  <Link
-                    href="/rescatados"
-                    className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium"
-                    style={{ color: "var(--color-offer)" }}
-                  >
-                    ✅ Ver personas rescatadas →
-                  </Link>
                 </div>
               </div>
+
+              {/* Tarjeta liviana: personas rescatadas */}
+              <Link
+                href="/rescatados"
+                className="flex flex-col justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 lg:w-52 shrink-0 transition hover:border-[var(--color-offer)] hover:shadow-sm"
+              >
+                <span className="inline-flex items-center gap-1.5 font-semibold" style={{ color: "var(--color-offer)" }}>
+                  ✅ Rescatados
+                </span>
+                <span className="text-sm text-[var(--color-muted)] mt-0.5">
+                  {rescuedCount > 0
+                    ? `${rescuedCount} ${rescuedCount === 1 ? "caso" : "casos"}`
+                    : "Registro de casos"}
+                </span>
+                <span className="text-sm font-medium mt-2" style={{ color: "var(--color-offer)" }}>
+                  Ver registro →
+                </span>
+              </Link>
             </div>
 
             <p className="mt-6 text-sm font-medium text-[var(--color-muted)]">
