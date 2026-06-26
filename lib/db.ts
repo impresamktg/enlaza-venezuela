@@ -6,7 +6,7 @@ const TABLE = "posts";
 
 /** Columnas públicas (nunca incluir manage_token). */
 const PUBLIC_COLUMNS =
-  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at,address,trapped,rescue_state";
+  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at,address,trapped,rescue_state,rescued_at";
 
 /** Registro interno en memoria: una publicación + su token de gestión. */
 type MemPost = Post & { manage_token: string };
@@ -107,6 +107,7 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     address: input.address?.trim() || null,
     trapped: input.trapped ?? false,
     rescue_state: null,
+    rescued_at: null,
   };
 
   if (!supabase) {
@@ -189,6 +190,7 @@ export async function setRescueState(
     const p = memoryPosts.find((x) => x.id === id);
     if (!p) return false;
     p.rescue_state = state;
+    p.rescued_at = state === "rescatados" ? new Date().toISOString() : null;
     return true;
   }
   const { data, error } = await supabase.rpc("set_rescue_state", {

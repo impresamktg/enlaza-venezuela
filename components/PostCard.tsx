@@ -149,7 +149,13 @@ export default function PostCard({
             </a>
           )}
         </div>
-        {isRescue && <RescueStatus postId={post.id} state={post.rescue_state} />}
+        {isRescue && (
+          <RescueStatus
+            postId={post.id}
+            state={post.rescue_state}
+            rescuedAt={post.rescued_at}
+          />
+        )}
         <div className="mt-2 flex justify-center">
           <SharePost postId={post.id} title={post.title} />
         </div>

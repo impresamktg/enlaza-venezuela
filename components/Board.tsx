@@ -104,6 +104,8 @@ export default function Board({ posts }: { posts: Post[] }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return posts.filter((p) => {
+      // Los casos marcados "rescatados" salen del tablón activo (van al registro).
+      if (p.rescue_state === "rescatados") return false;
       if (p.type !== type) return false;
       if (city !== "all" && p.city !== city) return false;
       if (category !== "all" && p.category !== category) return false;

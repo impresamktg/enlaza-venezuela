@@ -23,6 +23,7 @@ export interface Post {
   address: string | null; // dirección/edificio exacto (rescate) para "Cómo llegar"
   trapped: boolean; // hay personas atrapadas
   rescue_state: RescueState; // progreso en vivo del rescate
+  rescued_at: string | null; // ISO: cuándo se marcó "rescatados"
 }
 
 /** Resultado de crear una publicación: la publicación y su token de gestión. */

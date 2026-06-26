@@ -150,7 +150,10 @@ export function cityName(id: string): string {
  * configurada). Los teléfonos son ficticios. Sirven para mostrar cómo
  * funciona la plataforma.
  */
-const RAW_SEED_POSTS: Omit<Post, "address" | "trapped" | "rescue_state">[] = [
+const RAW_SEED_POSTS: Omit<
+  Post,
+  "address" | "trapped" | "rescue_state" | "rescued_at"
+>[] = [
   {
     id: "seed-1",
     type: "offer",
@@ -295,6 +298,7 @@ export const SEED_POSTS: Post[] = RAW_SEED_POSTS.map((p) => ({
   address: null,
   trapped: false,
   rescue_state: null,
+  rescued_at: null,
 }));
 
 function minutesAgo(min: number): string {

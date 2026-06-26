@@ -12,8 +12,10 @@ export default async function Home({
   searchParams: Promise<{ publicado?: string; tipo?: string }>;
 }) {
   const [posts, sp] = await Promise.all([listPosts(), searchParams]);
-  const needs = posts.filter((p) => p.type === "need").length;
-  const offers = posts.filter((p) => p.type === "offer").length;
+  // Los casos rescatados no cuentan como solicitudes activas (van al registro).
+  const open = posts.filter((p) => p.rescue_state !== "rescatados");
+  const needs = open.filter((p) => p.type === "need").length;
+  const offers = open.filter((p) => p.type === "offer").length;
   const published = sp.publicado === "1";
 
   return (
