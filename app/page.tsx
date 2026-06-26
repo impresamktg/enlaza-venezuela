@@ -85,6 +85,13 @@ export default async function Home({
                       🗺️ Ver mapa de rescate
                     </Link>
                   </div>
+                  <Link
+                    href="/rescatados"
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium"
+                    style={{ color: "var(--color-offer)" }}
+                  >
+                    ✅ Ver personas rescatadas →
+                  </Link>
                 </div>
               </div>
             </div>

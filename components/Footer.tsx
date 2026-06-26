@@ -19,6 +19,12 @@ export default function Footer() {
           <Link href="/publicar" className="hover:text-[var(--color-ink)]">
             Publicar
           </Link>
+          <Link href="/rescate" className="hover:text-[var(--color-ink)]">
+            Mapa de rescate
+          </Link>
+          <Link href="/rescatados" className="hover:text-[var(--color-ink)]">
+            Rescatados
+          </Link>
           <Link href="/recursos" className="hover:text-[var(--color-ink)]">
             Recursos oficiales y seguridad
           </Link>
