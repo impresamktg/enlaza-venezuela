@@ -115,7 +115,7 @@ export default function RecursosPage() {
           </section>
 
           <p className="mt-8 text-xs text-[var(--color-muted)]">
-            AyudaVenezuela es una plataforma comunitaria independiente y no verifica la
+            Enlaza Venezuela es una plataforma comunitaria independiente y no verifica la
             veracidad de cada publicación. Úsala con criterio.
           </p>
         </div>

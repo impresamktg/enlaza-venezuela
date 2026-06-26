@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface)]">
       <div className="mx-auto max-w-6xl px-4 py-8 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between text-sm text-[var(--color-muted)]">
         <div className="max-w-md">
-          <div className="font-semibold text-[var(--color-ink)]">AyudaVenezuela</div>
+          <div className="font-semibold text-[var(--color-ink)]">Enlaza Venezuela</div>
           <p className="mt-1">
             Iniciativa comunitaria sin fines de lucro para coordinar ayuda tras el
             terremoto. Verifica siempre con quién hablas antes de compartir datos o

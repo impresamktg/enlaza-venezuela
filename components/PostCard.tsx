@@ -26,8 +26,8 @@ export default function PostCard({
   const typeLabel = isNeed ? "Necesita" : "Ofrece";
 
   const waMessage = isNeed
-    ? `Hola ${post.contact_name}, vi tu solicitud en AyudaVenezuela ("${post.title}") y quiero ayudarte.`
-    : `Hola ${post.contact_name}, vi tu oferta en AyudaVenezuela ("${post.title}") y me interesa.`;
+    ? `Hola ${post.contact_name}, vi tu solicitud en Enlaza Venezuela ("${post.title}") y quiero ayudarte.`
+    : `Hola ${post.contact_name}, vi tu oferta en Enlaza Venezuela ("${post.title}") y me interesa.`;
 
   const interactive = Boolean(detailHref);
 
