@@ -34,6 +34,25 @@ export interface Post {
   trapped: boolean; // hay personas atrapadas
   rescue_state: RescueState; // progreso en vivo del rescate
   rescued_at: string | null; // ISO: cuándo se marcó "rescatados"
+  duplicate_of: string | null; // si está set, es una corroboración (oculta de los tablones)
+  corroboration_count: number; // nº de corroboraciones sobre la canónica
+}
+
+/** Coincidencia para el aviso anti-duplicados al publicar un rescate. */
+export interface SimilarRescue {
+  id: string;
+  title: string;
+  address: string | null;
+  zone: string | null;
+  corroboration_count: number;
+  sim: number;
+}
+
+/** Contacto de una corroboración, para listarlo en el detalle de la canónica. */
+export interface Corroboration {
+  contact_name: string;
+  contact_phone: string;
+  description: string | null;
 }
 
 /** Resultado de crear una publicación: la publicación y su token de gestión. */

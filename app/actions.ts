@@ -1,10 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createPost, resolvePost, deletePost, setRescueState } from "@/lib/db";
+import {
+  createPost,
+  resolvePost,
+  deletePost,
+  setRescueState,
+  findSimilarRescues,
+  corroboratePost,
+} from "@/lib/db";
 import { CATEGORY_MAP, CITY_MAP } from "@/lib/data";
 import { isValidWhatsApp } from "@/lib/format";
-import type { FormState, PostType } from "@/lib/types";
+import type { FormState, PostType, SimilarRescue } from "@/lib/types";
 
 export async function createPostAction(
   _prev: FormState,
@@ -83,6 +90,50 @@ export async function createPostAction(
 
   revalidatePath("/");
   return { success: { id: result.post.id, type, token: result.manageToken } };
+}
+
+/** Rescates parecidos para el aviso anti-duplicados. Nunca lanza. */
+export async function findSimilarAction(
+  city: string,
+  query: string,
+): Promise<SimilarRescue[]> {
+  if (!city || query.trim().length < 4) return [];
+  try {
+    return await findSimilarRescues(city, query.trim());
+  } catch {
+    return [];
+  }
+}
+
+/** Corrobora un rescate ya reportado en vez de crear un duplicado. */
+export async function corroboratePostAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const canonicalId = String(formData.get("canonical_id") ?? "");
+  const name = String(formData.get("contact_name") ?? "").trim();
+  const phone = String(formData.get("contact_phone") ?? "").trim();
+  const note = String(formData.get("note") ?? "").trim().slice(0, 1000);
+
+  if (!canonicalId) return { error: "Reporte no válido." };
+  if (name.length < 2) return { error: "Escribe tu nombre." };
+  if (!isValidWhatsApp(phone)) {
+    return {
+      error: "Ese número de WhatsApp no parece válido. Revísalo (ej: 0412 555 1234).",
+    };
+  }
+
+  let ok = false;
+  try {
+    ok = await corroboratePost(canonicalId, name, phone, note || null);
+  } catch {
+    return { error: "No se pudo confirmar. Revisa tu conexión e intenta de nuevo." };
+  }
+  if (!ok) return { error: "No se pudo confirmar este reporte." };
+
+  revalidatePath("/");
+  revalidatePath("/rescate");
+  return { success: { id: canonicalId, type: "need", token: null } };
 }
 
 export async function resolvePostAction(

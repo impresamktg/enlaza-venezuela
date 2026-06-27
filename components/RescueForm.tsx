@@ -6,6 +6,7 @@ import { CITIES } from "@/lib/data";
 import { createPostAction } from "@/app/actions";
 import { isValidWhatsApp } from "@/lib/format";
 import { saveToken } from "@/lib/manage-tokens";
+import SimilarRescues from "./SimilarRescues";
 import type { FormState } from "@/lib/types";
 
 const initialState: FormState = {};
@@ -150,6 +151,8 @@ export default function RescueForm() {
             : "Lo más exacto posible: así los rescatistas saben adónde ir. Compartir tu ubicación ayuda a ubicarte en el mapa."}
         </p>
       </div>
+
+      <SimilarRescues city={city} query={where} />
 
       {/* 2 · Ciudad */}
       <div>

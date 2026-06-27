@@ -3,8 +3,9 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
-import { getPostById } from "@/lib/db";
+import { getPostById, getCorroborations } from "@/lib/db";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
+import { whatsappHref } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,8 @@ export default async function PostPage({
 }) {
   const { id } = await params;
   const post = await getPostById(id);
+  const corroborations =
+    post && post.corroboration_count > 0 ? await getCorroborations(post.id) : [];
 
   return (
     <>
@@ -74,6 +77,34 @@ export default async function PostPage({
                 Publicación en Enlaza Venezuela · contacta directamente por WhatsApp.
               </p>
               <PostCard post={post} />
+              {corroborations.length > 0 && (
+                <section className="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+                  <h2 className="text-sm font-bold text-[var(--color-need-strong)]">
+                    🔴 Reportado por {corroborations.length + 1} personas
+                  </h2>
+                  <p className="text-xs text-[var(--color-muted)] mt-0.5 mb-3">
+                    Varias personas reportan este mismo lugar. Más formas de contactar:
+                  </p>
+                  <ul className="flex flex-col gap-2">
+                    {corroborations.map((c, i) => (
+                      <li key={i} className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium truncate">{c.contact_name}</span>
+                        <a
+                          href={whatsappHref(
+                            c.contact_phone,
+                            `Hola ${c.contact_name}, vi tu reporte en Enlaza Venezuela y quiero ayudar.`,
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] text-white font-semibold text-sm px-3 py-2"
+                        >
+                          💬 WhatsApp
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
               <Link
                 href="/"
                 className="block text-center mt-5 text-sm font-medium text-[var(--color-ve-blue)] hover:underline"

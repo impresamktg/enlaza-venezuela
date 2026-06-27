@@ -7,6 +7,7 @@ import type { FormState, PostType } from "@/lib/types";
 import { createPostAction } from "@/app/actions";
 import { isValidWhatsApp } from "@/lib/format";
 import { saveToken } from "@/lib/manage-tokens";
+import SimilarRescues from "./SimilarRescues";
 
 const initialState: FormState = {};
 
@@ -26,6 +27,7 @@ export default function PostForm({
   const [city, setCity] = useState<string>("caracas");
   const [phone, setPhone] = useState<string>("");
   const [phoneTouched, setPhoneTouched] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
   const [titleLen, setTitleLen] = useState<number>(0);
   const [descLen, setDescLen] = useState<number>(0);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -206,7 +208,11 @@ export default function PostForm({
           minLength={5}
           maxLength={120}
           className={fieldClass}
-          onChange={(e) => setTitleLen(e.target.value.length)}
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setTitleLen(e.target.value.length);
+          }}
           placeholder={
             isNeed
               ? "Ej: Familia de 5 necesita refugio en Altamira"
@@ -282,6 +288,10 @@ export default function PostForm({
           </datalist>
         </div>
       </div>
+
+      {isNeed && (category === "rescate" || category === "maquinaria") && (
+        <SimilarRescues city={city} query={title} />
+      )}
 
       {/* Ubicación aproximada (opcional) */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3.5">

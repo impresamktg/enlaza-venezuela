@@ -152,7 +152,7 @@ export function cityName(id: string): string {
  */
 const RAW_SEED_POSTS: Omit<
   Post,
-  "address" | "trapped" | "rescue_state" | "rescued_at"
+  "address" | "trapped" | "rescue_state" | "rescued_at" | "duplicate_of" | "corroboration_count"
 >[] = [
   {
     id: "seed-1",
@@ -299,6 +299,8 @@ export const SEED_POSTS: Post[] = RAW_SEED_POSTS.map((p) => ({
   trapped: false,
   rescue_state: null,
   rescued_at: null,
+  duplicate_of: null,
+  corroboration_count: 0,
 }));
 
 function minutesAgo(min: number): string {
