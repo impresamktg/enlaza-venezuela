@@ -7,6 +7,7 @@ import { createPostAction } from "@/app/actions";
 import { isValidWhatsApp } from "@/lib/format";
 import { saveToken } from "@/lib/manage-tokens";
 import SimilarRescues from "./SimilarRescues";
+import PhotoUpload from "./PhotoUpload";
 import type { FormState } from "@/lib/types";
 
 const initialState: FormState = {};
@@ -304,6 +305,16 @@ export default function RescueForm() {
               className={fieldClass}
               placeholder="Señales de vida, piso, qué se necesita (maquinaria, herramientas)…"
             />
+          </div>
+          <div>
+            <label className={labelClass}>
+              Fotos{" "}
+              <span className="font-normal text-[var(--color-muted)]">(máx 2)</span>
+            </label>
+            <PhotoUpload />
+            <p className="mt-1.5 text-xs text-[var(--color-muted)]">
+              Una foto del edificio o los escombros ayuda a los rescatistas.
+            </p>
           </div>
         </div>
       </details>

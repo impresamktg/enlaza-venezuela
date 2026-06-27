@@ -36,6 +36,7 @@ export interface Post {
   rescued_at: string | null; // ISO: cuándo se marcó "rescatados"
   duplicate_of: string | null; // si está set, es una corroboración (oculta de los tablones)
   corroboration_count: number; // nº de corroboraciones sobre la canónica
+  photos: string[]; // URLs públicas en Storage (máx 2)
 }
 
 /** Coincidencia para el aviso anti-duplicados al publicar un rescate. */
@@ -86,4 +87,5 @@ export interface NewPost {
   lng?: number | null;
   address?: string | null;
   trapped?: boolean;
+  photos?: string[];
 }
