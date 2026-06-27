@@ -262,6 +262,24 @@ export default function PostForm({
       </div>
 
       {/* Ubicación */}
+      <div>
+        <label className={labelClass} htmlFor="address">
+          Dirección o edificio{" "}
+          <span className="text-[var(--color-muted)] font-normal">(opcional)</span>
+        </label>
+        <input
+          id="address"
+          name="address"
+          maxLength={200}
+          autoComplete="street-address"
+          className={fieldClass}
+          placeholder="Edificio, calle o punto de referencia"
+        />
+        <p className="mt-1.5 text-xs text-[var(--color-muted)]">
+          Ayuda a que te ubiquen y habilita el botón “Cómo llegar”.
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelClass} htmlFor="city">
