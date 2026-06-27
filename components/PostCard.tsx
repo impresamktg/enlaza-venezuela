@@ -42,14 +42,22 @@ export default function PostCard({
   const isRescue =
     isNeed &&
     (post.trapped || post.category === "rescate" || post.category === "maquinaria");
-  const mapsHref = post.address
-    ? mapsSearchHref([post.address, post.zone, cityName(post.city), "Venezuela"])
-    : null;
-
   // Muchas publicaciones repiten el edificio como título y como dirección; no lo
   // mostramos dos veces.
   const addrIsTitle =
     !!post.address && post.address.trim().toLowerCase() === post.title.trim().toLowerCase();
+
+  // Ubicación más concreta que tenemos para mostrar (dirección > zona > ciudad).
+  // Una dirección que solo repite el título no cuenta como "concreta" para mostrar.
+  const specificLoc = (post.address && !addrIsTitle ? post.address : null) || post.zone || null;
+
+  // "Cómo llegar" se habilita cuando hay algo más preciso que la ciudad (dirección o
+  // zona). Muchas publicaciones traen el edificio/calle en la zona o el título aunque
+  // no llenen el campo dirección, así que lo aprovechamos en la búsqueda de Maps.
+  const mapsHref =
+    post.address || post.zone
+      ? mapsSearchHref([post.address ?? post.title, post.zone, cityName(post.city), "Venezuela"])
+      : null;
 
   const waHref = whatsappHref(post.contact_phone, waMessage);
 
@@ -70,11 +78,8 @@ export default function PostCard({
   if (interactive) {
     // Ubicación en una línea: edificio/dirección primero (lo que usa el rescate),
     // ciudad · zona como apoyo. Sin caja aparte ni dirección duplicada del título.
-    const showAddress = post.address && !addrIsTitle;
-    const locPrimary = showAddress ? post.address : cityName(post.city);
-    const locSecondary = showAddress
-      ? `${cityName(post.city)}${post.zone ? ` · ${post.zone}` : ""}`
-      : post.zone || "";
+    const locPrimary = specificLoc || cityName(post.city);
+    const locSecondary = specificLoc ? cityName(post.city) : "";
 
     const hasMeta =
       post.corroboration_count > 0 ||
