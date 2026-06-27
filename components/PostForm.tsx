@@ -22,6 +22,7 @@ export default function PostForm({
   const [category, setCategory] = useState<string>(
     CATEGORIES.some((c) => c.id === defaultCategory) ? defaultCategory : "",
   );
+  const [trapped, setTrapped] = useState(false);
   const [city, setCity] = useState<string>("caracas");
   const [phone, setPhone] = useState<string>("");
   const [phoneTouched, setPhoneTouched] = useState<boolean>(false);
@@ -46,6 +47,8 @@ export default function PostForm({
   }
 
   const isNeed = type === "need";
+  // El check "personas atrapadas" solo aplica a solicitudes de rescate/maquinaria.
+  const showTrapped = isNeed && (category === "rescate" || category === "maquinaria");
   const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
   const phoneValid = isValidWhatsApp(phone);
   const phoneError = phoneTouched && phone.trim() !== "" && !phoneValid;
@@ -150,6 +153,46 @@ export default function PostForm({
           })}
         </div>
       </fieldset>
+
+      {/* Personas atrapadas — solo para rescate/maquinaria. Marca trapped=on. */}
+      {showTrapped && (
+        <div>
+          <button
+            type="button"
+            onClick={() => setTrapped((v) => !v)}
+            aria-pressed={trapped}
+            className="w-full flex items-start gap-3 rounded-2xl border-2 p-4 text-left transition-colors"
+            style={{
+              borderColor: trapped ? "var(--color-need-strong)" : "var(--color-border)",
+              background: trapped ? "var(--color-need-soft)" : "var(--color-surface)",
+            }}
+          >
+            <span
+              className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-sm font-bold"
+              style={{
+                background: trapped ? "var(--color-need-strong)" : "var(--color-bg)",
+                color: "#fff",
+                border: trapped ? "none" : "1px solid var(--color-border)",
+              }}
+            >
+              {trapped ? "✓" : ""}
+            </span>
+            <span>
+              <span
+                className="block font-semibold"
+                style={{ color: trapped ? "var(--color-need-strong)" : undefined }}
+              >
+                🆘 Hay personas atrapadas
+              </span>
+              <span className="text-xs text-[var(--color-muted)]">
+                Márcalo solo si hay personas atrapadas o bajo escombros. Aparecerá con
+                prioridad máxima y bandera roja para que los rescatistas la vean primero.
+              </span>
+            </span>
+          </button>
+          {trapped && <input type="hidden" name="trapped" value="on" />}
+        </div>
+      )}
 
       {/* Título */}
       <div>
