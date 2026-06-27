@@ -86,6 +86,23 @@ export default function PostCard({
         <p className="text-sm text-[var(--color-ink)]/80 line-clamp-4">{post.description}</p>
       )}
 
+      {post.photos.length > 0 && (
+        <div className="grid grid-cols-2 gap-1.5">
+          {post.photos.slice(0, 2).map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={i}
+              src={src}
+              alt=""
+              loading="lazy"
+              className={`w-full rounded-lg border border-[var(--color-border)] object-cover ${
+                post.photos.length === 1 ? "col-span-2 max-h-56" : "h-32"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
       <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-muted)] pt-1">
         <span className="inline-flex items-center gap-1">
           📍 {cityName(post.city)}

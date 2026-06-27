@@ -52,6 +52,14 @@ export async function createPostAction(
     if (!Number.isNaN(n) && n > 0) peopleCount = Math.min(n, 9999);
   }
 
+  // Fotos: solo URLs públicas de nuestro bucket de Storage; máximo 2.
+  const photoPrefix = `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/post-photos/`;
+  const photos = formData
+    .getAll("photos")
+    .map((v) => String(v).trim())
+    .filter((u) => u && u.startsWith(photoPrefix))
+    .slice(0, 2);
+
   // Ubicación aproximada opcional. Se valida (rango de Venezuela) y se redondea
   // a ~110 m (3 decimales) para no exponer la ubicación exacta del autor.
   let lat: number | null = null;
@@ -83,6 +91,7 @@ export async function createPostAction(
       lng,
       address: address || null,
       trapped,
+      photos,
     });
   } catch {
     return { error: "No se pudo publicar. Revisa tu conexión e intenta de nuevo." };

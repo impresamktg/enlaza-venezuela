@@ -8,6 +8,7 @@ import { createPostAction } from "@/app/actions";
 import { isValidWhatsApp } from "@/lib/format";
 import { saveToken } from "@/lib/manage-tokens";
 import SimilarRescues from "./SimilarRescues";
+import PhotoUpload from "./PhotoUpload";
 
 const initialState: FormState = {};
 
@@ -246,6 +247,17 @@ export default function PostForm({
           style={{ color: descLen >= 1000 ? "var(--color-need)" : "var(--color-muted)" }}
         >
           {descLen}/1000
+        </p>
+      </div>
+
+      {/* Fotos (opcional, máx 2) */}
+      <div>
+        <label className={labelClass}>
+          Fotos <span className="text-[var(--color-muted)] font-normal">(opcional, máx 2)</span>
+        </label>
+        <PhotoUpload />
+        <p className="mt-1.5 text-xs text-[var(--color-muted)]">
+          Una imagen ayuda a entender la situación. Se reducen automáticamente.
         </p>
       </div>
 

@@ -12,7 +12,7 @@ const TABLE = "posts";
 
 /** Columnas públicas (nunca incluir manage_token). */
 const PUBLIC_COLUMNS =
-  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at,address,trapped,rescue_state,rescued_at,duplicate_of,corroboration_count";
+  "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at,address,trapped,rescue_state,rescued_at,duplicate_of,corroboration_count,photos";
 
 /** Registro interno en memoria: una publicación + su token de gestión. */
 type MemPost = Post & { manage_token: string };
@@ -149,6 +149,7 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     rescued_at: null,
     duplicate_of: null,
     corroboration_count: 0,
+    photos: (input.photos ?? []).slice(0, 2),
   };
 
   if (!supabase) {
@@ -178,6 +179,7 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     p_lng: base.lng,
     p_address: base.address ?? "",
     p_trapped: base.trapped,
+    p_photos: base.photos,
   });
 
   if (!rpcError && rpcData && rpcData[0]) {
