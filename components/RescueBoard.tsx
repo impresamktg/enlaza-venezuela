@@ -73,7 +73,7 @@ export default function RescueBoard({ posts }: { posts: Post[] }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {posts.map((p) => (
-          <PostCard key={p.id} post={p} detailHref={`/post/${p.id}`} compact />
+          <PostCard key={p.id} post={p} detailHref={`/post/${p.id}`} />
         ))}
       </div>
     </div>
