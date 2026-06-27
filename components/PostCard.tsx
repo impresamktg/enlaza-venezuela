@@ -178,11 +178,10 @@ export default function PostCard({
               href={mapsHref}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Cómo llegar"
-              title="Cómo llegar"
-              className="flex min-h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-lg hover:border-[var(--color-ve-blue)] transition"
+              className="flex min-h-[46px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 font-semibold text-[var(--color-ink)] hover:border-[var(--color-ve-blue)] transition"
             >
-              🧭
+              <span aria-hidden>🗺️</span>
+              Cómo llegar
             </a>
           )}
         </div>
@@ -294,7 +293,7 @@ export default function PostCard({
             rel="noopener noreferrer"
             className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 font-semibold text-[var(--color-ink)] hover:border-[var(--color-ve-blue)] transition"
           >
-            🧭 Cómo llegar
+            🗺️ Cómo llegar
           </a>
         )}
 
