@@ -91,6 +91,18 @@ export default function PostCard({
           📍 {cityName(post.city)}
           {post.zone ? ` · ${post.zone}` : ""}
         </span>
+        {post.corroboration_count > 0 && (
+          <span
+            className="inline-flex items-center gap-1 font-semibold"
+            style={{ color: "var(--color-need-strong)" }}
+          >
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ background: "var(--color-need-strong)" }}
+            />
+            Reportado por {post.corroboration_count + 1} personas
+          </span>
+        )}
         {typeof distanceKm === "number" && (
           <span
             className="inline-flex items-center gap-1 font-medium"
