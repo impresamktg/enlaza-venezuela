@@ -6,6 +6,7 @@ import type { Post } from "@/lib/types";
 import ManagePost from "./ManagePost";
 import SharePost from "./SharePost";
 import RescueStatus from "./RescueStatus";
+import PhotoGallery from "./PhotoGallery";
 
 export default function PostCard({
   post,
@@ -99,11 +100,11 @@ export default function PostCard({
           </div>
         )}
 
-        <Link
-          href={detailHref!}
-          className="flex flex-1 gap-3 px-4 pb-3 pl-5 pt-3.5 text-[var(--color-ink)]"
-        >
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex flex-1 gap-3 px-4 pb-3 pl-5 pt-3.5">
+          <Link
+            href={detailHref!}
+            className="flex min-w-0 flex-1 flex-col gap-1.5 text-[var(--color-ink)]"
+          >
             <div className="flex items-start justify-between gap-2">
               <h3 className="min-w-0 font-semibold leading-snug line-clamp-2 transition-colors group-hover:text-[var(--color-ve-blue)]">
                 <span aria-hidden className="mr-1">
@@ -162,26 +163,13 @@ export default function PostCard({
                 ) : null}
               </div>
             )}
-          </div>
+          </Link>
 
-          {/* Miniatura: va al lado del texto, no añade alto → tarjetas parejas. */}
+          {/* Miniatura ampliable: va al lado del texto, no añade alto. */}
           {post.photos.length > 0 && (
-            <div className="relative shrink-0 self-start">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={post.photos[0]}
-                alt=""
-                loading="lazy"
-                className="h-[72px] w-[72px] rounded-xl border border-[var(--color-border)] object-cover"
-              />
-              {post.photos.length > 1 && (
-                <span className="absolute bottom-1 right-1 rounded-md bg-black/65 px-1.5 text-[10px] font-semibold text-white">
-                  +{post.photos.length - 1}
-                </span>
-              )}
-            </div>
+            <PhotoGallery photos={post.photos} variant="thumb" />
           )}
-        </Link>
+        </div>
 
         <div className="flex items-center gap-2 px-4 pb-4 pl-5">
           {whatsappButton}
@@ -261,26 +249,7 @@ export default function PostCard({
           <p className="text-sm text-[var(--color-ink)]/80">{post.description}</p>
         )}
 
-        {post.photos.length > 0 && (
-          <div
-            className={`grid gap-0.5 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-border)] ${
-              post.photos.length === 1 ? "grid-cols-1" : "grid-cols-2"
-            }`}
-          >
-            {post.photos.slice(0, 2).map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={src}
-                alt=""
-                loading="lazy"
-                className={`w-full bg-[var(--color-bg)] object-cover ${
-                  post.photos.length === 1 ? "aspect-[16/10]" : "aspect-square"
-                }`}
-              />
-            ))}
-          </div>
-        )}
+        {post.photos.length > 0 && <PhotoGallery photos={post.photos} variant="grid" />}
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs text-[var(--color-muted)]">
           <span className="inline-flex items-center gap-1">
