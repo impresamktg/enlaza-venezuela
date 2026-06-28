@@ -29,10 +29,11 @@ const estadoGeo = (p) => (p.city === "otra" ? null : CITY_ESTADO[p.city] ?? CITY
 const categoria = (p) => CATEGORY_ALIAS[p.category] ?? p.category;
 
 function build(p) {
-  const descripcion = [p.title, p.description].filter(Boolean).join(" — ");
+  const url = `https://enlazavenezuela.com/post/${p.id}`;
+  const descripcion = `${[p.title, p.description].filter(Boolean).join(" — ")} · Ficha: ${url}`;
   if (p.type === "need")
     return { endpoint: "necesidades", body: { fuente: FUENTE, id: p.id, categoria: categoria(p), urgencia: p.trapped ? "critica" : (p.category === "rescate" || p.category === "maquinaria" ? "alta" : "media"), descripcion, contacto: p.contact_phone, num_personas: p.people_count ?? null, estado_geo: estadoGeo(p), municipio: p.zone ?? null, referencia: p.address ?? null } };
-  return { endpoint: "recursos", body: { fuente: FUENTE, id: p.id, nombre: p.title, categoria: categoria(p), descripcion: p.description ?? p.title, contacto: p.contact_phone, lat: p.lat, lng: p.lng, estado_geo: estadoGeo(p), municipio: p.zone ?? null } };
+  return { endpoint: "recursos", body: { fuente: FUENTE, id: p.id, nombre: p.title, categoria: categoria(p), descripcion: `${p.description ?? p.title} · Ficha: ${url}`, contacto: p.contact_phone, url, lat: p.lat, lng: p.lng, estado_geo: estadoGeo(p), municipio: p.zone ?? null } };
 }
 
 const cols = "id,type,category,title,description,city,zone,contact_name,contact_phone,people_count,lat,lng,status,created_at,address,trapped,rescue_state,rescued_at,duplicate_of,corroboration_count,photos";

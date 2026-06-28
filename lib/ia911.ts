@@ -44,7 +44,10 @@ function categoria(post: Pick<Post, "category">): string {
 
 /** Cuerpo IA911 para una publicación de Enlaza (need→necesidades, offer→recursos). */
 export function ia911Body(post: Post): { endpoint: "necesidades" | "recursos"; body: Record<string, unknown> } {
-  const descripcion = [post.title, post.description].filter(Boolean).join(" — ");
+  // Enlace de vuelta a la ficha en Enlaza (convención del pool: "Ficha: <url>"),
+  // para que cualquier sistema pueda abrir la publicación original.
+  const url = `https://enlazavenezuela.com/post/${post.id}`;
+  const descripcion = `${[post.title, post.description].filter(Boolean).join(" — ")} · Ficha: ${url}`;
   if (post.type === "need") {
     return {
       endpoint: "necesidades",
@@ -74,8 +77,9 @@ export function ia911Body(post: Post): { endpoint: "necesidades" | "recursos"; b
       id: post.id,
       nombre: post.title,
       categoria: categoria(post),
-      descripcion: post.description ?? post.title,
+      descripcion: `${post.description ?? post.title} · Ficha: ${url}`,
       contacto: post.contact_phone,
+      url,
       lat: post.lat,
       lng: post.lng,
       estado_geo: estadoGeo(post),
