@@ -1,5 +1,6 @@
 import { getSupabase, isSupabaseConfigured } from "./supabase";
 import { SEED_POSTS } from "./data";
+import { pushToPool } from "./ia911";
 import type {
   CreateResult,
   NewPost,
@@ -184,10 +185,15 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
 
   if (!rpcError && rpcData && rpcData[0]) {
     const row = rpcData[0] as { id: string; manage_token: string };
-    return {
-      post: { id: row.id, ...base, status: "active", created_at: new Date().toISOString() },
-      manageToken: row.manage_token,
+    const created: Post = {
+      id: row.id,
+      ...base,
+      status: "active",
+      created_at: new Date().toISOString(),
     };
+    // Reinserta en el pool común IA911 (no lanza; la publicación ya existe).
+    await pushToPool(created);
+    return { post: created, manageToken: row.manage_token };
   }
 
   // Respaldo: si la migración aún no está aplicada, insertar directo (sin token).
@@ -201,7 +207,9 @@ export async function createPost(input: NewPost): Promise<CreateResult> {
     console.error("[db] createPost error:", error.message);
     throw new Error("No se pudo publicar. Intenta de nuevo.");
   }
-  return { post: data as unknown as Post, manageToken: null };
+  const created = data as unknown as Post;
+  await pushToPool(created);
+  return { post: created, manageToken: null };
 }
 
 export async function resolvePost(id: string, token: string): Promise<boolean> {
