@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Enlaza Venezuela",
-    short_name: "Enlaza VE",
+    short_name: "Enlaza Venezuela",
     description:
       "Conecta a quien ofrece ayuda con quien la necesita tras el terremoto. Caracas y La Guaira.",
     start_url: "/",
