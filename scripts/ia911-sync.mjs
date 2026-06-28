@@ -31,7 +31,7 @@ const categoria = (p) => CATEGORY_ALIAS[p.category] ?? p.category;
 function build(p) {
   const descripcion = [p.title, p.description].filter(Boolean).join(" — ");
   if (p.type === "need")
-    return { endpoint: "necesidades", body: { fuente: FUENTE, id: p.id, categoria: categoria(p), urgencia: p.trapped ? "critica" : "normal", descripcion, contacto: p.contact_phone, num_personas: p.people_count ?? null, estado_geo: estadoGeo(p), municipio: p.zone ?? null, referencia: p.address ?? null } };
+    return { endpoint: "necesidades", body: { fuente: FUENTE, id: p.id, categoria: categoria(p), urgencia: p.trapped ? "critica" : (p.category === "rescate" || p.category === "maquinaria" ? "alta" : "media"), descripcion, contacto: p.contact_phone, num_personas: p.people_count ?? null, estado_geo: estadoGeo(p), municipio: p.zone ?? null, referencia: p.address ?? null } };
   return { endpoint: "recursos", body: { fuente: FUENTE, id: p.id, nombre: p.title, categoria: categoria(p), descripcion: p.description ?? p.title, contacto: p.contact_phone, lat: p.lat, lng: p.lng, estado_geo: estadoGeo(p), municipio: p.zone ?? null } };
 }
 
@@ -42,14 +42,28 @@ if (LIMIT) url += `&limit=${LIMIT}`;
 const posts = await fetch(url, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } }).then((r) => r.json());
 console.log(`Fetched ${posts.length} active post(s)${TYPE ? ` type=${TYPE}` : ""}${LIMIT ? ` limit=${LIMIT}` : " (ALL — backfill)"}`);
 
-let ok = 0, fail = 0;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const DELAY = parseInt(process.env.DELAY_MS || "700", 10); // entre peticiones (ritmo base)
+const RETRY_WAIT = parseInt(process.env.RETRY_WAIT_MS || "65000", 10); // espera tras un 429
+
+let ok = 0, fail = 0, done = 0;
 for (const p of posts) {
   const { endpoint, body } = build(p);
-  try {
-    const res = await fetch(`${IA911}/${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const txt = await res.text();
-    if (res.ok) { ok++; if (posts.length <= 4) console.log(`✓ ${endpoint} ${p.id}\n   sent: ${JSON.stringify(body)}\n   resp: ${txt.slice(0, 300)}`); }
-    else { fail++; console.error(`✗ ${endpoint} ${p.id} [${res.status}] ${txt.slice(0, 250)}`); }
-  } catch (e) { fail++; console.error(`✗ ${endpoint} ${p.id} ERROR ${e.message}`); }
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const res = await fetch(`${IA911}/${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (res.status === 429 && attempt <= 6) {
+        console.log(`… límite de peticiones, espero ${Math.round(RETRY_WAIT / 1000)}s (intento ${attempt})`);
+        await sleep(RETRY_WAIT);
+        continue;
+      }
+      const txt = await res.text();
+      if (res.ok) { ok++; if (posts.length <= 4) console.log(`✓ ${endpoint} ${p.id}\n   resp: ${txt.slice(0, 300)}`); }
+      else { fail++; console.error(`✗ ${endpoint} ${p.id} [${res.status}] ${txt.slice(0, 160)}`); }
+    } catch (e) { fail++; console.error(`✗ ${endpoint} ${p.id} ERROR ${e.message}`); }
+    break;
+  }
+  if (++done % 25 === 0) console.log(`… ${done}/${posts.length} (${ok} ok, ${fail} fail)`);
+  await sleep(DELAY);
 }
 console.log(`\nDone: ${ok} ok, ${fail} failed, of ${posts.length}.`);

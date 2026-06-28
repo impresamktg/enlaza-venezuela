@@ -52,7 +52,12 @@ export function ia911Body(post: Post): { endpoint: "necesidades" | "recursos"; b
         fuente: FUENTE,
         id: post.id,
         categoria: categoria(post),
-        urgencia: post.trapped ? "critica" : "normal",
+        // IA911 urgencia ∈ {media, alta, critica}. "normal" no es válido.
+        urgencia: post.trapped
+          ? "critica"
+          : post.category === "rescate" || post.category === "maquinaria"
+            ? "alta"
+            : "media",
         descripcion,
         contacto: post.contact_phone,
         num_personas: post.people_count ?? null,
