@@ -29,8 +29,8 @@ export default function RescueBoard({ posts }: { posts: Post[] }) {
   function share() {
     const url = `${window.location.origin}/rescate`;
     const data = {
-      title: "Mapa de rescate — Enlaza Venezuela",
-      text: "Personas atrapadas que necesitan rescate en Venezuela. Ayuda a difundir.",
+      title: "Lugares con personas atrapadas — Enlaza Venezuela",
+      text: "Lugares con personas atrapadas que necesitan ayuda en Venezuela. Difunde para que quien pueda ayudar los vea.",
       url,
     };
     if (navigator.share) navigator.share(data).catch(() => {});

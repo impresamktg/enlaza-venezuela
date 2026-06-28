@@ -267,6 +267,55 @@ export async function deletePost(id: string, token: string): Promise<boolean> {
 }
 
 /**
+ * Emparejamiento necesidad ↔ oferta: dado un post, trae el lado OPUESTO en la
+ * misma categoría y ciudad (activos, no duplicados, excluyendo el propio). Es el
+ * valor central del marketplace ("pediste un camión → estas ofertas pueden
+ * ayudarte"). Consulta directa sobre columnas existentes: no requiere migración.
+ * Nunca lanza; en demo o error devuelve lo que pueda.
+ */
+export async function findMatches(
+  post: Pick<Post, "id" | "type" | "category" | "city">,
+  limit = 8,
+): Promise<Post[]> {
+  const opposite: Post["type"] = post.type === "need" ? "offer" : "need";
+  const supabase = getSupabase();
+
+  if (!supabase) {
+    return memoryPosts
+      .filter(
+        (p) =>
+          p.status === "active" &&
+          !p.duplicate_of &&
+          p.type === opposite &&
+          p.category === post.category &&
+          p.city === post.city &&
+          p.id !== post.id,
+      )
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, limit)
+      .map(strip);
+  }
+
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(PUBLIC_COLUMNS)
+    .eq("type", opposite)
+    .eq("category", post.category)
+    .eq("city", post.city)
+    .eq("status", "active")
+    .is("duplicate_of", null)
+    .neq("id", post.id)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[db] findMatches error:", error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as Post[];
+}
+
+/**
  * Rescates activos parecidos en la misma ciudad (aviso anti-duplicados al
  * publicar). Nunca lanza: ante error o modo demo devuelve lo que pueda.
  */

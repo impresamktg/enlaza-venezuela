@@ -66,23 +66,23 @@ export default function RescueForm() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-need-soft)] text-2xl">
           🆘
         </div>
-        <h2 className="text-xl font-bold">Reporte publicado</h2>
+        <h2 className="text-xl font-bold">Pedido publicado</h2>
         <p className="mt-2 text-sm text-[var(--color-muted)] max-w-md mx-auto">
-          Ya aparece en el mapa de rescate. Rescatistas y maquinaria podrán verlo y
-          contactarte por WhatsApp.
+          Tu pedido ya es visible. Quien pueda ayudar (voluntarios, maquinaria, brigadas)
+          podrá verlo y contactarte por WhatsApp. Enlaza no envía equipos de rescate.
         </p>
         <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/rescate"
             className="rounded-xl bg-[var(--color-need)] text-white font-semibold px-5 py-3"
           >
-            Ver mapa de rescate
+            Ver lugares con personas atrapadas
           </Link>
           <a
             href="/reportar"
             className="rounded-xl border border-[var(--color-border)] font-semibold px-5 py-3 text-[var(--color-ink)]"
           >
-            Reportar otro
+            Pedir ayuda para otro lugar
           </a>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function RescueForm() {
         <p className="mt-1 text-xs text-[var(--color-muted)]">
           {geo === "denied" || geo === "error"
             ? "No se pudo obtener tu ubicación. Escribe la dirección lo más exacta posible."
-            : "Lo más exacto posible: así los rescatistas saben adónde ir. Compartir tu ubicación ayuda a ubicarte en el mapa."}
+            : "Lo más exacto posible: así quien pueda ayudar sabe adónde ir. Compartir tu ubicación ayuda a ubicarte en el mapa."}
         </p>
       </div>
 
@@ -331,11 +331,11 @@ export default function RescueForm() {
         className="min-h-[56px] w-full rounded-xl text-white font-bold text-lg transition disabled:opacity-50"
         style={{ background: "var(--color-need-strong)" }}
       >
-        {pending ? "Publicando…" : "🆘 Enviar reporte de rescate"}
+        {pending ? "Publicando…" : "🆘 Publicar pedido de ayuda"}
       </button>
       <p className="text-xs text-[var(--color-muted)] text-center">
-        Tu número será visible para que rescatistas te contacten. En emergencia, llama
-        también al <strong>171</strong>.
+        Tu número será visible para que quien pueda ayudar te contacte. Enlaza no
+        coordina rescates ni garantiza respuesta: conecta a la gente.
       </p>
     </form>
   );

@@ -7,8 +7,10 @@ export default function Footer() {
         <div className="max-w-md">
           <div className="font-semibold text-[var(--color-ink)]">Enlaza Venezuela</div>
           <p className="mt-1">
-            Iniciativa comunitaria sin fines de lucro para coordinar ayuda tras el
-            terremoto. Verifica siempre con quién hablas antes de compartir datos o
+            Iniciativa comunitaria sin fines de lucro que conecta a quien necesita ayuda
+            con quien puede ofrecerla.{" "}
+            <strong>No coordinamos rescates ni enviamos equipos</strong>, ni verificamos
+            cada publicación: verifica siempre con quién hablas antes de compartir datos o
             entregar recursos.
           </p>
         </div>
@@ -16,11 +18,14 @@ export default function Footer() {
           <Link href="/" className="hover:text-[var(--color-ink)]">
             Tablón de ayuda
           </Link>
+          <Link href="/directorio" className="hover:text-[var(--color-ink)]">
+            Directorio de ofertas
+          </Link>
           <Link href="/publicar" className="hover:text-[var(--color-ink)]">
             Publicar
           </Link>
           <Link href="/rescate" className="hover:text-[var(--color-ink)]">
-            Mapa de rescate
+            Lugares con personas atrapadas
           </Link>
           <Link href="/rescatados" className="hover:text-[var(--color-ink)]">
             Rescatados

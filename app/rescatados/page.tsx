@@ -25,7 +25,7 @@ export default async function RescatadosPage() {
             href="/rescate"
             className="text-sm text-[var(--color-muted)] hover:text-[var(--color-ink)]"
           >
-            ← Mapa de rescate
+            ← Lugares con personas atrapadas
           </Link>
 
           <h1 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "var(--color-offer)" }}>

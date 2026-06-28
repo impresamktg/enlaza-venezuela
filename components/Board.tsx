@@ -161,12 +161,24 @@ export default function Board({
     setVisible(PAGE_STEP);
   }
 
-  // Lista acotada que crece con "Ver más" en la misma página (sin recargar ni
-  // cambiar de página), para no renderizar cientos de tarjetas en redes lentas.
-  // Las urgentes van ordenadas primero, así se ven antes que nada; la cola
-  // completa de rescate vive en /rescate (vista con mapa).
-  const listItems = useMemo(() => displayed.slice(0, visible), [displayed, visible]);
-  const hasMore = displayed.length > visible;
+  // El "cluster de rescate" (personas atrapadas + solicitudes de rescate/maquinaria)
+  // NO inunda el tablón: se resume en un aviso que lleva a la vista dedicada
+  // (/rescate). El tablón principal queda para el marketplace de necesidades ↔
+  // ofertas y no lo domina el rescate. Solo aplica a la pestaña "Necesitan ayuda";
+  // en ofertas, una excavadora ofrecida es una publicación válida del directorio.
+  const rescueItems = useMemo(
+    () => (type === "need" ? displayed.filter((d) => isUrgent(d.post)) : []),
+    [displayed, type],
+  );
+  const mainItems = useMemo(
+    () => (type === "need" ? displayed.filter((d) => !isUrgent(d.post)) : displayed),
+    [displayed, type],
+  );
+
+  // Lista acotada que crece con "Ver más" en la misma página, para no renderizar
+  // cientos de tarjetas en redes lentas.
+  const listItems = useMemo(() => mainItems.slice(0, visible), [mainItems, visible]);
+  const hasMore = mainItems.length > visible;
 
   const selectClass =
     "w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ve-blue)]/30";
@@ -312,23 +324,65 @@ export default function Board({
         </p>
       )}
 
-      {displayed.length === 0 ? (
-        <EmptyState />
-      ) : view === "map" ? (
+      {view === "map" ? (
         <MapView items={displayed} userLoc={userLoc} />
+      ) : displayed.length === 0 ? (
+        <EmptyState />
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {listItems.map(({ post, distanceKm }) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                manageToken={tokens[post.id]}
-                distanceKm={distanceKm}
-                detailHref={`/post/${post.id}`}
-              />
-            ))}
-          </div>
+          {/* Aviso resumen del rescate (no inunda el tablón). */}
+          {rescueItems.length > 0 && (
+            <Link
+              href="/rescate"
+              className="flex items-center gap-3 rounded-2xl border px-4 py-3 transition hover:brightness-95"
+              style={{
+                borderColor: "var(--color-need-strong)",
+                background: "var(--color-need-soft)",
+              }}
+            >
+              <span className="text-xl" aria-hidden>
+                🆘
+              </span>
+              <span className="flex-1 min-w-0">
+                <span
+                  className="block text-sm font-bold"
+                  style={{ color: "var(--color-need-strong)" }}
+                >
+                  {rescueItems.length}{" "}
+                  {rescueItems.length === 1 ? "solicitud" : "solicitudes"} de rescate
+                </span>
+                <span className="block text-xs text-[var(--color-ink)]/70">
+                  Personas atrapadas, maquinaria y brigadas. Enlaza no envía equipos:
+                  difunde y contacta a quien pueda ayudar.
+                </span>
+              </span>
+              <span
+                className="shrink-0 text-sm font-semibold"
+                style={{ color: "var(--color-need-strong)" }}
+                aria-hidden
+              >
+                Ver todas →
+              </span>
+            </Link>
+          )}
+
+          {listItems.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {listItems.map(({ post, distanceKm }) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  manageToken={tokens[post.id]}
+                  distanceKm={distanceKm}
+                  detailHref={`/post/${post.id}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="py-6 text-center text-sm text-[var(--color-muted)]">
+              No hay otras solicitudes con estos filtros.
+            </p>
+          )}
 
           {hasMore && (
             <div className="mt-2 flex flex-col items-center gap-2">
@@ -340,10 +394,10 @@ export default function Board({
                 Ver más publicaciones
               </button>
               <span className="text-xs text-[var(--color-muted)] text-center">
-                Mostrando {listItems.length} de {displayed.length} ·{" "}
+                Mostrando {listItems.length} de {mainItems.length} ·{" "}
                 <button
                   type="button"
-                  onClick={() => setVisible(displayed.length)}
+                  onClick={() => setVisible(mainItems.length)}
                   className="underline hover:text-[var(--color-ink)]"
                 >
                   Ver todas

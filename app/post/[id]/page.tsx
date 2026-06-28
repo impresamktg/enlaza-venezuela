@@ -3,7 +3,8 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
-import { getPostById, getCorroborations } from "@/lib/db";
+import { getPostById, getCorroborations, findMatches } from "@/lib/db";
+import { isRescueClosed } from "@/lib/types";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 import { whatsappHref } from "@/lib/format";
 
@@ -39,6 +40,12 @@ export default async function PostPage({
   const post = await getPostById(id);
   const corroborations =
     post && post.corroboration_count > 0 ? await getCorroborations(post.id) : [];
+  // Emparejamiento: el lado opuesto (oferta↔necesidad) en la misma categoría y
+  // ciudad. Solo para publicaciones activas y abiertas.
+  const matches =
+    post && post.status === "active" && !isRescueClosed(post.rescue_state)
+      ? await findMatches(post)
+      : [];
 
   return (
     <>
@@ -103,6 +110,26 @@ export default async function PostPage({
                       </li>
                     ))}
                   </ul>
+                </section>
+              )}
+              {matches.length > 0 && (
+                <section className="mt-6">
+                  <h2 className="text-sm font-bold text-[var(--color-ink)]">
+                    {post.type === "need"
+                      ? "Ofertas que pueden ayudarte"
+                      : "Quién necesita lo que ofreces"}{" "}
+                    <span className="font-normal text-[var(--color-muted)]">
+                      · {matches.length}
+                    </span>
+                  </h2>
+                  <p className="mt-0.5 mb-3 text-xs text-[var(--color-muted)]">
+                    Misma categoría y ciudad. Contacta directamente por WhatsApp.
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    {matches.map((m) => (
+                      <PostCard key={m.id} post={m} detailHref={`/post/${m.id}`} />
+                    ))}
+                  </div>
                 </section>
               )}
               <Link

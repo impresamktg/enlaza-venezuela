@@ -16,8 +16,9 @@ via WhatsApp. Live: https://www.enlazavenezuela.com
 - 3-level emphasis system: N1 critical = need-strong `#be123c` (trapped/rescue, only element
   allowed motion: the pulse dot), N2 = solid need `#e11d48` / offer `#059669` / WhatsApp green,
   N3 = outline/ghost/muted. need/offer never swap meaning; WhatsApp green only on the contact button.
-- Repo: github.com/impresamktg/ayuda-venezuela, branch `main`. Deploy: `vercel --prod --yes`
-  (CLI authed as impresamktg; project "ayuda-venezuela"). A prebuild step stamps the SW version.
+- Repo: github.com/impresamktg/enlaza-venezuela, branch `main`. Deploy: `vercel --prod --yes`
+  (CLI authed as impresamktg; Vercel project "enlaza-venezuela"). Public domain enlazavenezuela.com.
+  *.vercel.app slugs regenerate to enlaza-venezuela-* on the next deploy. Prebuild stamps the SW version.
 
 ## Data model (posts table)
 - `status`: 'active' | 'resolved' (author closes via manage-token RPC `resolve_post`).

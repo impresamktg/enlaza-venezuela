@@ -9,9 +9,9 @@ import { isRescueClosed } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Mapa de rescate — Enlaza Venezuela",
+  title: "Lugares con personas atrapadas — Enlaza Venezuela",
   description:
-    "Reportes de personas atrapadas y rescates activos en Venezuela. Ubicación, estado en vivo y contacto directo para rescatistas y maquinaria.",
+    "Pedidos de ayuda en lugares donde hay personas atrapadas. Ubicación y contacto directo por WhatsApp para que quien pueda ayudar coordine. Enlaza no coordina rescates.",
 };
 
 export default async function RescatePage() {
@@ -40,11 +40,12 @@ export default async function RescatePage() {
           <div className="mt-3 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-need)]">
-                🆘 Mapa de rescate
+                🆘 Lugares con personas atrapadas
               </h1>
               <p className="mt-2 text-[var(--color-muted)] max-w-2xl">
-                Personas atrapadas y rescates activos. Toca <strong>Cómo llegar</strong> para
-                navegar al sitio y marca el estado cuando vayas en camino o se complete.
+                Pedidos de ayuda donde hay personas atrapadas. Toca <strong>Cómo llegar</strong>{" "}
+                y contacta por WhatsApp para coordinar. Enlaza no envía equipos de rescate:
+                conecta a quien puede ayudar.
               </p>
               <Link
                 href="/rescatados"
@@ -58,7 +59,7 @@ export default async function RescatePage() {
               href="/reportar"
               className="shrink-0 rounded-xl bg-[var(--color-need)] text-white font-bold px-5 py-3 text-center hover:brightness-95 transition"
             >
-              🆘 Reportar persona atrapada
+              🆘 Pedir ayuda para un lugar
             </Link>
           </div>
 

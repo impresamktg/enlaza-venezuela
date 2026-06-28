@@ -41,14 +41,14 @@ export default function SimilarRescues({ city, query }: { city: string; query: s
       <div className="rounded-xl border border-[var(--color-offer)] bg-[var(--color-offer-soft)] p-4 text-sm fade-in">
         <p className="font-semibold text-[var(--color-offer)]">✅ Reporte confirmado</p>
         <p className="mt-1 text-[var(--color-ink)]">
-          Los rescatistas verán que más personas reportan este lugar y tu WhatsApp quedó
-          añadido.
+          Quien pueda ayudar verá que más personas reportan este lugar y tu WhatsApp
+          quedó añadido.
         </p>
         <Link
           href="/rescate"
           className="mt-2 inline-block font-semibold text-[var(--color-ve-blue)]"
         >
-          Ver mapa de rescate →
+          Ver lugares con personas atrapadas →
         </Link>
       </div>
     );

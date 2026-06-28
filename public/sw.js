@@ -15,7 +15,7 @@
 // En desarrollo no se registra (ver ServiceWorkerRegister), por eso aquí solo
 // vive la lógica de producción.
 
-const VERSION = "7eeb786-1782513675687"; // ← sellado en build por scripts/stamp-sw.mjs
+const VERSION = "37e2f59-1782677685019"; // ← sellado en build por scripts/stamp-sw.mjs
 const CACHE = `enlaza-${VERSION}`;
 const PRECACHE = [
   "/",

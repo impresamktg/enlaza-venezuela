@@ -189,7 +189,7 @@ export default function PostForm({
               </span>
               <span className="text-xs text-[var(--color-muted)]">
                 Márcalo solo si hay personas atrapadas o bajo escombros. Aparecerá con
-                prioridad máxima y bandera roja para que los rescatistas la vean primero.
+                prioridad máxima y bandera roja para que quien pueda ayudar la vea primero.
               </span>
             </span>
           </button>

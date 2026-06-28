@@ -215,7 +215,7 @@ export default function PostCard({
           style={{ background: "var(--color-need-strong)" }}
         >
           <span className="h-1.5 w-1.5 rounded-full bg-white pulse-dot" />
-          🆘 PERSONAS ATRAPADAS
+          🆘 Hay personas atrapadas en este lugar
           {post.people_count ? ` · ${post.people_count}` : ""}
         </div>
       )}

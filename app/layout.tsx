@@ -13,22 +13,22 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.enlazavenezuela.com"),
-  title: "Enlaza Venezuela — El rescate es la prioridad",
+  title: "Enlaza Venezuela — Conectamos quien necesita ayuda con quien puede ayudar",
   description:
-    "El rescate es la prioridad: conectamos maquinaria pesada, herramientas y voluntarios con experiencia para búsqueda, rescate y remoción de escombros tras los terremotos del 24 de junio de 2026 en Venezuela. También refugio, alimentos y salud. Caracas y La Guaira.",
+    "Conectamos directamente, por WhatsApp, a quien necesita algo (insumos, transporte, refugio, salud, maquinaria, manos) con quien puede ofrecerlo, tras los terremotos del 24 de junio de 2026 en Venezuela. Caracas y La Guaira.",
   openGraph: {
-    title: "Enlaza Venezuela — El rescate es la prioridad",
+    title: "Enlaza Venezuela — Necesito ayuda · Puedo ayudar",
     description:
-      "Conectamos maquinaria, herramientas y voluntarios para búsqueda y rescate tras el terremoto. También refugio, alimentos y salud. Caracas y La Guaira.",
+      "Conectamos por WhatsApp a quien necesita algo con quien puede ofrecerlo tras el terremoto. Insumos, transporte, refugio, salud, maquinaria y más. Caracas y La Guaira.",
     siteName: "Enlaza Venezuela",
     locale: "es_VE",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Enlaza Venezuela — El rescate es la prioridad",
+    title: "Enlaza Venezuela — Necesito ayuda · Puedo ayudar",
     description:
-      "Conectamos maquinaria, herramientas y voluntarios para búsqueda y rescate tras el terremoto.",
+      "Conectamos por WhatsApp a quien necesita algo con quien puede ofrecerlo tras el terremoto en Venezuela.",
   },
   appleWebApp: {
     capable: true,

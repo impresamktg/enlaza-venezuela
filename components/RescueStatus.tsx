@@ -1,20 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setRescueStateAction } from "@/app/actions";
 import { timeAgo } from "@/lib/format";
 import type { RescueState } from "@/lib/types";
 
 /**
- * Estado en vivo de un rescate, con botones de un toque. Sin login ni token:
- * cualquiera en sitio puede actualizarlo.
- *
- * Al cerrar se distingue:
- *  - "Rescatados": se rescató a personas → cuenta en el registro de rescatados.
- *  - "Resuelto": la solicitud fue atendida (p. ej. llegó la maquinaria) sin que
- *    eso signifique personas rescatadas → no cuenta como rescate.
- * Ambos sacan la publicación del tablón activo y piden confirmación.
+ * Estado honesto de una solicitud con personas atrapadas. Enlaza NO coordina
+ * rescates ni envía equipos: solo hace visible el pedido para que quien pueda
+ * ayudar contacte. Por eso aquí no hay "equipo en camino" ni promesa de respuesta;
+ * únicamente un control para cerrar la solicitud cuando ya no aplica.
+ * Sin login ni token: cualquiera en sitio puede actualizarlo.
  */
 export default function RescueStatus({
   postId,
@@ -27,7 +24,6 @@ export default function RescueStatus({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [confirming, setConfirming] = useState<"rescatados" | "resuelto" | null>(null);
 
   function set(next: RescueState) {
     startTransition(async () => {
@@ -36,152 +32,57 @@ export default function RescueStatus({
     });
   }
 
-  const btn =
-    "flex-1 rounded-lg text-xs font-semibold px-3 py-2 border transition disabled:opacity-50";
+  const revertBtn = (
+    <button
+      type="button"
+      onClick={() => set(null)}
+      disabled={pending}
+      className="w-full rounded-lg border border-[var(--color-border)] text-xs font-semibold px-3 py-2 text-[var(--color-muted)] hover:text-[var(--color-ink)] transition disabled:opacity-50"
+    >
+      ↩ Volver a activo
+    </button>
+  );
 
-  // Vista terminal: rescatados (personas) — solo permite revertir.
+  // Estados terminales (datos existentes): la solicitud salió del tablón activo.
   if (state === "rescatados") {
     return (
       <div className="mt-3 border-t border-[var(--color-border)] pt-3">
-        <p className="text-[11px] font-semibold mb-2 text-center" style={{ color: "var(--color-offer)" }}>
-          ✅ Rescatados{rescuedAt ? ` · ${timeAgo(rescuedAt)}` : ""}
-        </p>
-        <button
-          type="button"
-          onClick={() => set(null)}
-          disabled={pending}
-          className="w-full rounded-lg border border-[var(--color-border)] text-xs font-semibold px-3 py-2 text-[var(--color-muted)] hover:text-[var(--color-ink)] transition disabled:opacity-50"
+        <p
+          className="text-[11px] font-semibold mb-2 text-center"
+          style={{ color: "var(--color-offer)" }}
         >
-          ↩ Volver a activo
-        </button>
-        <p className="text-[10px] text-[var(--color-muted)] mt-1.5 text-center">
-          ¿Se marcó por error? Vuélvelo a la lista de rescate.
+          ✅ Personas rescatadas{rescuedAt ? ` · ${timeAgo(rescuedAt)}` : ""}
         </p>
+        {revertBtn}
       </div>
     );
   }
-
-  // Vista terminal: resuelto (solicitud atendida, sin rescate de personas).
   if (state === "resuelto") {
     return (
       <div className="mt-3 border-t border-[var(--color-border)] pt-3">
         <p className="text-[11px] font-semibold mb-2 text-center text-[var(--color-ink)]">
-          ✓ Solicitud resuelta
+          ✓ Solicitud cerrada
         </p>
-        <button
-          type="button"
-          onClick={() => set(null)}
-          disabled={pending}
-          className="w-full rounded-lg border border-[var(--color-border)] text-xs font-semibold px-3 py-2 text-[var(--color-muted)] hover:text-[var(--color-ink)] transition disabled:opacity-50"
-        >
-          ↩ Volver a activo
-        </button>
+        {revertBtn}
       </div>
     );
   }
 
-  const onWay = state === "en_camino";
-
+  // Estado activo (incluye datos antiguos en "en_camino"): un solo control honesto.
   return (
     <div className="mt-3 border-t border-[var(--color-border)] pt-3">
-      {onWay && (
-        <p className="text-[11px] font-semibold mb-1.5 text-center" style={{ color: "var(--color-ve-blue)" }}>
-          🚑 Equipo en camino
-        </p>
-      )}
-
-      {confirming === "rescatados" ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-[11px] text-center text-[var(--color-ink)]">
-            ¿Confirmas que ya rescataron a las personas? Saldrá de la lista activa.
-          </p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => set("rescatados")}
-              disabled={pending}
-              className={btn}
-              style={{ background: "var(--color-offer)", color: "#fff", borderColor: "var(--color-offer)" }}
-            >
-              ✅ Sí, rescatados
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirming(null)}
-              disabled={pending}
-              className={btn}
-              style={{ borderColor: "var(--color-border)", color: "var(--color-muted)" }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      ) : confirming === "resuelto" ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-[11px] text-center text-[var(--color-ink)]">
-            ¿La solicitud ya fue atendida? (sin rescate de personas). Saldrá de la lista activa.
-          </p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => set("resuelto")}
-              disabled={pending}
-              className={btn}
-              style={{ background: "var(--color-ink)", color: "#fff", borderColor: "var(--color-ink)" }}
-            >
-              ✓ Sí, resuelto
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirming(null)}
-              disabled={pending}
-              className={btn}
-              style={{ borderColor: "var(--color-border)", color: "var(--color-muted)" }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => set(onWay ? null : "en_camino")}
-            disabled={pending}
-            className="w-full rounded-lg text-xs font-semibold px-3 py-2 border transition disabled:opacity-50"
-            style={
-              onWay
-                ? { background: "var(--color-ve-blue)", color: "#fff", borderColor: "var(--color-ve-blue)" }
-                : { borderColor: "var(--color-border)", color: "var(--color-ink)" }
-            }
-          >
-            🚑 {onWay ? "En camino" : "Voy en camino"}
-          </button>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setConfirming("rescatados")}
-              disabled={pending}
-              className={btn}
-              style={{ borderColor: "var(--color-border)", color: "var(--color-ink)" }}
-            >
-              ✅ Rescatados
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirming("resuelto")}
-              disabled={pending}
-              className={btn}
-              style={{ borderColor: "var(--color-border)", color: "var(--color-muted)" }}
-            >
-              ✓ Resuelto
-            </button>
-          </div>
-        </div>
-      )}
-
+      <button
+        type="button"
+        onClick={() => set("resuelto")}
+        disabled={pending}
+        className="w-full rounded-lg text-xs font-semibold px-3 py-2 border transition disabled:opacity-50"
+        style={{ borderColor: "var(--color-border)", color: "var(--color-ink)" }}
+      >
+        ✓ Marcar como resuelto / ya no aplica
+      </button>
       <p className="text-[10px] text-[var(--color-muted)] mt-1.5 text-center">
-        Rescatados = personas. Resuelto = solicitud atendida. Cualquiera puede actualizar.
+        Enlaza no envía equipos de rescate. Esto solo hace visible el pedido para que
+        quien pueda ayudar te contacte. Cualquiera puede cerrarlo cuando ya no aplique.
       </p>
     </div>
   );
