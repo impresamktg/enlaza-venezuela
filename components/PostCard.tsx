@@ -5,7 +5,7 @@ import { timeAgo, whatsappHref, mapsSearchHref } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
 import type { Post } from "@/lib/types";
 import ManagePost from "./ManagePost";
-import SharePost from "./SharePost";
+import ShareSheet from "./ShareSheet";
 import RescueStatus from "./RescueStatus";
 import PhotoGallery from "./PhotoGallery";
 
@@ -313,8 +313,19 @@ export default function PostCard({
           <RescueStatus postId={post.id} state={post.rescue_state} rescuedAt={post.rescued_at} />
         )}
 
-        <div className="mt-1 flex justify-center">
-          <SharePost postId={post.id} title={post.title} />
+        <div className="mt-1">
+          <ShareSheet
+            variant="compact"
+            heading={isNeed ? "Compartir esta solicitud" : "Compartir esta oferta"}
+            title={`${typeLabel}: ${post.title} — Enlaza Venezuela`}
+            message={
+              isNeed
+                ? `🆘 Alguien necesita ayuda tras los terremotos en Venezuela: "${post.title}". Mira y comparte en Enlaza:`
+                : `🙌 Hay ayuda disponible tras los terremotos en Venezuela: "${post.title}". Mírala en Enlaza:`
+            }
+            url={`/post/${post.id}`}
+            storyUrl={`/post/${post.id}/story`}
+          />
         </div>
 
         {manageToken && (

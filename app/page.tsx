@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Board from "@/components/Board";
 import Footer from "@/components/Footer";
+import ShareSheet from "@/components/ShareSheet";
 import { listPosts, listRescued, isDemoMode } from "@/lib/db";
 import { listPool } from "@/lib/pool";
 import { isRescueClosed } from "@/lib/types";
@@ -97,6 +98,19 @@ export default async function Home({
             </div>
           )}
           <Board posts={allPosts} rescuedCount={rescuedCount} />
+
+          {/* Corre la voz · difundir el proyecto para que llegue a más gente. */}
+          <section className="mx-auto mt-10 max-w-2xl">
+            <ShareSheet
+              variant="section"
+              heading="Corre la voz"
+              subtext="Cuanta más gente lo sepa, más rápido se conecta la ayuda. Compártelo con tu familia, vecinos y grupos de WhatsApp."
+              title="Enlaza Venezuela"
+              message="🆘 Tras los terremotos en Venezuela, Enlaza conecta por WhatsApp a quien necesita ayuda con quien puede darla. Si necesitas algo o puedes ayudar, entra:"
+              url="/"
+              storyUrl="/story"
+            />
+          </section>
         </div>
       </main>
 
