@@ -25,6 +25,9 @@ export default function PostCard({
 }) {
   const isNeed = post.type === "need";
   const category = CATEGORY_MAP[post.category];
+  // "Otra ciudad" no aporta nada como etiqueta (frecuente en datos de la red);
+  // en su lugar mostramos la ubicación real (zona/estado) que trae la publicación.
+  const cityLabel = post.city === "otra" ? "" : cityName(post.city);
 
   const accent = isNeed ? "var(--color-need)" : "var(--color-offer)";
   const softBg = isNeed ? "var(--color-need-soft)" : "var(--color-offer-soft)";
@@ -82,8 +85,8 @@ export default function PostCard({
   if (interactive) {
     // Ubicación en una línea: edificio/dirección primero (lo que usa el rescate),
     // ciudad · zona como apoyo. Sin caja aparte ni dirección duplicada del título.
-    const locPrimary = specificLoc || cityName(post.city);
-    const locSecondary = specificLoc ? cityName(post.city) : "";
+    const locPrimary = specificLoc || cityLabel || "Venezuela";
+    const locSecondary = specificLoc ? cityLabel : "";
 
     const hasMeta =
       post.corroboration_count > 0 ||
@@ -265,8 +268,7 @@ export default function PostCard({
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs text-[var(--color-muted)]">
           <span className="inline-flex items-center gap-1">
-            📍 {cityName(post.city)}
-            {post.zone ? ` · ${post.zone}` : ""}
+            📍 {[cityLabel, post.zone].filter(Boolean).join(" · ") || "Venezuela"}
           </span>
           {post.corroboration_count > 0 && (
             <span

@@ -16,17 +16,46 @@ type Row = Record<string, unknown>;
 const str = (v: unknown): string => (typeof v === "string" ? v : v == null ? "" : String(v));
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
-/** estado_geo del pool → id de ciudad de Enlaza (mejor esfuerzo). */
-function toCity(estado: unknown): string {
-  const s = str(estado).toLowerCase();
-  if (s.includes("distrito capital") || s.includes("caracas")) return "caracas";
-  if (s.includes("guaira") || s.includes("vargas")) return "la-guaira";
-  if (s.includes("yaracuy") || s.includes("san felipe")) return "san-felipe";
-  if (s.includes("moron") || s.includes("puerto cabello")) return "moron";
-  if (s.includes("carabobo") || s.includes("valencia")) return "valencia";
-  if (s.includes("aragua") || s.includes("maracay")) return "maracay";
-  if (s.includes("zulia") || s.includes("maracaibo")) return "maracaibo";
-  if (s.includes("lara") || s.includes("barquisimeto")) return "barquisimeto";
+const BAD_LOC = new Set([
+  "none", "null", "por confirmar", "n/a", "na", "sin especificar", "desconocido", "-",
+]);
+/** Limpia un texto de ubicación: descarta vacíos/placeholders y el prefijo "Estado". */
+function cleanLoc(v: unknown): string | null {
+  const s = str(v).trim();
+  if (!s || BAD_LOC.has(s.toLowerCase())) return null;
+  return s.replace(/^estado\s+/i, "").trim();
+}
+
+/** Etiqueta legible "Municipio, Estado" (sin repetir) a partir del pool. */
+function placeLabel(municipio: unknown, estado: unknown): string | null {
+  const m = cleanLoc(municipio);
+  const e = cleanLoc(estado);
+  if (m && e) {
+    const ml = m.toLowerCase();
+    const el = e.toLowerCase();
+    return ml === el || ml.includes(el) || el.includes(ml) ? m : `${m}, ${e}`;
+  }
+  return m || e;
+}
+
+// Palabras clave (estado/municipio) → id de ciudad de Enlaza. Solo las
+// inequívocas; el resto queda "otra" pero conserva su etiqueta real (zone).
+const CITY_KEYWORDS: [string, string][] = [
+  ["distrito capital", "caracas"], ["caracas", "caracas"], ["chacao", "caracas"],
+  ["baruta", "caracas"], ["el hatillo", "caracas"],
+  ["guaira", "la-guaira"], ["vargas", "la-guaira"], ["maiquet", "la-guaira"],
+  ["caraballeda", "la-guaira"], ["catia la mar", "la-guaira"],
+  ["yaracuy", "san-felipe"], ["san felipe", "san-felipe"],
+  ["puerto cabello", "moron"], ["morón", "moron"], ["moron", "moron"],
+  ["carabobo", "valencia"], ["valencia", "valencia"],
+  ["aragua", "maracay"], ["maracay", "maracay"],
+  ["zulia", "maracaibo"], ["maracaibo", "maracaibo"],
+  ["lara", "barquisimeto"], ["barquisimeto", "barquisimeto"],
+];
+/** Mejor esfuerzo: deduce la ciudad de Enlaza desde estado/municipio/referencia. */
+function toCity(estado: unknown, municipio?: unknown, referencia?: unknown): string {
+  const s = `${str(estado)} ${str(municipio)} ${str(referencia)}`.toLowerCase();
+  for (const [needle, id] of CITY_KEYWORDS) if (s.includes(needle)) return id;
   return "otra";
 }
 
@@ -94,8 +123,8 @@ export async function listPoolNeeds(): Promise<Post[]> {
       category: toCategory(r.categoria),
       title: clip(str(r.referencia) || desc || str(r.categoria) || "Necesidad", 70),
       description: desc || null,
-      city: toCity(r.estado_geo),
-      zone: str(r.municipio) || null,
+      city: toCity(r.estado_geo, r.municipio, r.referencia),
+      zone: placeLabel(r.municipio, r.estado_geo),
       contact_phone: tel,
       people_count: num(r.num_personas),
       created_at: str(r.created_at) || new Date().toISOString(),
@@ -116,8 +145,8 @@ export async function listPoolOffers(): Promise<Post[]> {
       category: toCategory(r.categoria),
       title: clip(str(r.nombre) || str(r.categoria) || "Oferta", 70),
       description: str(r.descripcion) || null,
-      city: toCity(r.estado_geo),
-      zone: str(r.municipio) || null,
+      city: toCity(r.estado_geo, r.municipio),
+      zone: placeLabel(r.municipio, r.estado_geo),
       contact_phone: tel,
       contact_name: str(r.nombre) ? clip(r.nombre, 40) : "Oferta en la red",
       lat: num(r.lat),
@@ -141,8 +170,8 @@ export async function listPoolProviders(): Promise<Post[]> {
       category: "voluntarios",
       title: clip([oficios, str(r.nombre)].filter(Boolean).join(" — ") || "Voluntario", 70),
       description: [str(r.descripcion), disp && `Disponible: ${disp}`].filter(Boolean).join(" · ") || null,
-      city: toCity(r.estado_geo),
-      zone: str(r.municipio) || null,
+      city: toCity(r.estado_geo, r.municipio),
+      zone: placeLabel(r.municipio, r.estado_geo),
       contact_phone: tel,
       contact_name: str(r.nombre) ? clip(r.nombre, 40) : "Voluntario",
       created_at: str(r.created_at) || new Date().toISOString(),
