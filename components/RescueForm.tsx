@@ -8,6 +8,7 @@ import { isValidWhatsApp } from "@/lib/format";
 import { saveToken } from "@/lib/manage-tokens";
 import SimilarRescues from "./SimilarRescues";
 import PhotoUpload from "./PhotoUpload";
+import MinorSafetyNotice from "./MinorSafetyNotice";
 import type { FormState } from "@/lib/types";
 
 const initialState: FormState = {};
@@ -318,6 +319,8 @@ export default function RescueForm() {
           </div>
         </div>
       </details>
+
+      <MinorSafetyNotice includeLocation={false} />
 
       {state.error && (
         <p className="rounded-xl bg-[var(--color-need-soft)] text-[var(--color-need)] text-sm px-4 py-3">

@@ -9,6 +9,7 @@ import { isValidWhatsApp } from "@/lib/format";
 import { saveToken } from "@/lib/manage-tokens";
 import SimilarRescues from "./SimilarRescues";
 import PhotoUpload from "./PhotoUpload";
+import MinorSafetyNotice from "./MinorSafetyNotice";
 
 const initialState: FormState = {};
 
@@ -249,6 +250,8 @@ export default function PostForm({
           {descLen}/1000
         </p>
       </div>
+
+      <MinorSafetyNotice />
 
       {/* Fotos (opcional, máx 2) */}
       <div>
