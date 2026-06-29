@@ -74,6 +74,15 @@ export default async function Home({
               </Link>
             </div>
 
+            <div className="mt-4 text-center">
+              <Link
+                href="/desaparecidos"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-ve-blue)] hover:underline"
+              >
+                🔎 ¿Buscas a una persona? Búscala aquí →
+              </Link>
+            </div>
+
             <div className="mt-6 flex flex-wrap justify-center items-center gap-x-5 gap-y-1 text-sm">
               <span>
                 <b className="text-[var(--color-need)]">{needs}</b>{" "}

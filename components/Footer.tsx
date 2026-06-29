@@ -21,6 +21,9 @@ export default function Footer() {
           <Link href="/directorio" className="hover:text-[var(--color-ink)]">
             Directorio de ofertas
           </Link>
+          <Link href="/desaparecidos" className="hover:text-[var(--color-ink)]">
+            Buscar desaparecidos
+          </Link>
           <Link href="/publicar" className="hover:text-[var(--color-ink)]">
             Publicar
           </Link>

@@ -19,8 +19,14 @@ export default function Header() {
 
         <nav className="flex items-center gap-1 sm:gap-2 text-sm">
           <Link
-            href="/directorio"
+            href="/desaparecidos"
             className="px-3 py-2 rounded-lg text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bg)] transition-colors"
+          >
+            Desaparecidos
+          </Link>
+          <Link
+            href="/directorio"
+            className="hidden sm:inline-block px-3 py-2 rounded-lg text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bg)] transition-colors"
           >
             Directorio
           </Link>
