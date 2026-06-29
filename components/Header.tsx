@@ -25,6 +25,12 @@ export default function Header() {
             Desaparecidos
           </Link>
           <Link
+            href="/sitios"
+            className="hidden sm:inline-block px-3 py-2 rounded-lg text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bg)] transition-colors"
+          >
+            Centros de ayuda
+          </Link>
+          <Link
             href="/directorio"
             className="hidden sm:inline-block px-3 py-2 rounded-lg text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-bg)] transition-colors"
           >

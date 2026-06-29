@@ -24,6 +24,9 @@ export default function Footer() {
           <Link href="/desaparecidos" className="hover:text-[var(--color-ink)]">
             Buscar desaparecidos
           </Link>
+          <Link href="/sitios" className="hover:text-[var(--color-ink)]">
+            Centros de ayuda (acopios y refugios)
+          </Link>
           <Link href="/publicar" className="hover:text-[var(--color-ink)]">
             Publicar
           </Link>
