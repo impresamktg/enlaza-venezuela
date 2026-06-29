@@ -147,7 +147,9 @@ export default function Board({
       const ub = isUrgent(b.post) ? 0 : 1;
       if (ua !== ub) return ua - ub;
       if (userLoc) return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
-      return 0;
+      // Sin ubicación: más reciente primero, así las de la red (pool) se entremezclan
+      // con las propias en vez de quedar todas al final.
+      return b.post.created_at.localeCompare(a.post.created_at);
     });
     return items;
   }, [filtered, userLoc]);
@@ -374,7 +376,7 @@ export default function Board({
                   post={post}
                   manageToken={tokens[post.id]}
                   distanceKm={distanceKm}
-                  detailHref={`/post/${post.id}`}
+                  detailHref={post.source ? undefined : `/post/${post.id}`}
                 />
               ))}
             </div>

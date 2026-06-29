@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 import { timeAgo, whatsappHref, mapsSearchHref } from "@/lib/format";
 import { formatDistance } from "@/lib/geo";
@@ -31,12 +32,14 @@ export default function PostCard({
   // Riel: crítico (rose-700) para personas atrapadas; si no, el color del tipo.
   const railColor = post.trapped ? "var(--color-need-strong)" : accent;
 
+  const via = post.source ? "la red de ayuda" : "Enlaza Venezuela";
   const waMessage = isNeed
-    ? `Hola ${post.contact_name}, vi tu solicitud en Enlaza Venezuela ("${post.title}") y quiero ayudarte.`
-    : `Hola ${post.contact_name}, vi tu oferta en Enlaza Venezuela ("${post.title}") y me interesa.`;
+    ? `Hola ${post.contact_name}, vi tu solicitud en ${via} ("${post.title}") y quiero ayudarte.`
+    : `Hola ${post.contact_name}, vi tu oferta en ${via} ("${post.title}") y me interesa.`;
 
-  // Tablón = variante compacta de triaje; detalle = variante completa.
-  const interactive = Boolean(detailHref);
+  // Tablón = variante compacta de triaje; detalle = variante completa. Los
+  // registros consumidos del pool (post.source) también van en variante compacta.
+  const interactive = Boolean(detailHref) || Boolean(post.source);
   // El estado de rescate solo aplica a solicitudes (alguien necesita ser rescatado),
   // no a ofertas de ayuda en rescate.
   const isRescue =
@@ -100,16 +103,13 @@ export default function PostCard({
             style={{ background: "var(--color-need-strong)" }}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-white pulse-dot" />
-            🆘 PERSONAS ATRAPADAS
+            🆘 Hay personas atrapadas en este lugar
             {post.people_count ? ` · ${post.people_count}` : ""}
           </div>
         )}
 
         <div className="flex flex-1 gap-3 px-4 pb-3 pl-5 pt-3.5">
-          <Link
-            href={detailHref!}
-            className="flex min-w-0 flex-1 flex-col gap-1.5 text-[var(--color-ink)]"
-          >
+          <CardBody detailHref={detailHref} sourceUrl={post.source ? post.source_url ?? null : null}>
             <div className="flex items-start justify-between gap-2">
               <h3 className="min-w-0 font-semibold leading-snug line-clamp-2 transition-colors group-hover:text-[var(--color-ve-blue)]">
                 <span aria-hidden className="mr-1">
@@ -122,8 +122,15 @@ export default function PostCard({
               </time>
             </div>
 
-            {category?.label && (
-              <p className="-mt-1 text-xs text-[var(--color-muted)]">{category.label}</p>
+            {(category?.label || post.source) && (
+              <p className="-mt-1 text-xs text-[var(--color-muted)]">
+                {category?.label}
+                {post.source ? (
+                  <span style={{ color: "var(--color-ve-blue)" }}>
+                    {category?.label ? " · " : ""}vía {post.source}
+                  </span>
+                ) : null}
+              </p>
             )}
 
             <div className="flex items-start gap-1 text-sm">
@@ -168,7 +175,7 @@ export default function PostCard({
                 ) : null}
               </div>
             )}
-          </Link>
+          </CardBody>
 
           {/* Miniatura ampliable: va al lado del texto, no añade alto. */}
           {post.photos.length > 0 && (
@@ -318,4 +325,32 @@ export default function PostCard({
       </div>
     </article>
   );
+}
+
+/** Cuerpo clicable de la tarjeta compacta: enlace interno al detalle si es una
+ *  publicación propia; enlace externo a la ficha de origen si viene del pool; o
+ *  sin enlace si no hay destino. */
+function CardBody({
+  detailHref,
+  sourceUrl,
+  children,
+}: {
+  detailHref?: string;
+  sourceUrl?: string | null;
+  children: ReactNode;
+}) {
+  const cls = "flex min-w-0 flex-1 flex-col gap-1.5 text-[var(--color-ink)]";
+  if (detailHref)
+    return (
+      <Link href={detailHref} className={cls}>
+        {children}
+      </Link>
+    );
+  if (sourceUrl)
+    return (
+      <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className={cls}>
+        {children}
+      </a>
+    );
+  return <div className={cls}>{children}</div>;
 }

@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
 import { listPosts } from "@/lib/db";
+import { listPoolOffers, listPoolProviders } from "@/lib/pool";
 import { CATEGORIES } from "@/lib/data";
 import { isRescueClosed } from "@/lib/types";
 
@@ -16,13 +17,21 @@ export const metadata: Metadata = {
 };
 
 export default async function DirectorioPage() {
-  const all = await listPosts({ type: "offer" });
-  const offers = all.filter((p) => !isRescueClosed(p.rescue_state));
+  // Ofertas propias + ofertas y voluntarios (oficios) del pool común IA911.
+  const [localOffers, poolOffers, providers] = await Promise.all([
+    listPosts({ type: "offer" }),
+    listPoolOffers(),
+    listPoolProviders(),
+  ]);
+  const offers = [...localOffers, ...poolOffers, ...providers].filter(
+    (p) => !isRescueClosed(p.rescue_state),
+  );
   // Agrupar por categoría, respetando el orden de CATEGORIES.
   const groups = CATEGORIES.map((c) => ({
     category: c,
     items: offers.filter((p) => p.category === c.id),
   })).filter((g) => g.items.length > 0);
+  const CAP = 30; // máximo de tarjetas por categoría (evita páginas enormes en móvil)
 
   return (
     <>
@@ -72,10 +81,19 @@ export default async function DirectorioPage() {
                     </span>
                   </h2>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {g.items.map((p) => (
-                      <PostCard key={p.id} post={p} detailHref={`/post/${p.id}`} />
+                    {g.items.slice(0, CAP).map((p) => (
+                      <PostCard
+                        key={p.id}
+                        post={p}
+                        detailHref={p.source ? undefined : `/post/${p.id}`}
+                      />
                     ))}
                   </div>
+                  {g.items.length > CAP && (
+                    <p className="mt-3 text-sm text-[var(--color-muted)]">
+                      + {g.items.length - CAP} más en {g.category.label.toLowerCase()}
+                    </p>
+                  )}
                 </section>
               ))}
             </div>

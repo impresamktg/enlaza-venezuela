@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Board from "@/components/Board";
 import Footer from "@/components/Footer";
 import { listPosts, listRescued, isDemoMode } from "@/lib/db";
+import { listPool } from "@/lib/pool";
 import { isRescueClosed } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -12,13 +13,16 @@ export default async function Home({
 }: {
   searchParams: Promise<{ publicado?: string; tipo?: string }>;
 }) {
-  const [posts, rescued, sp] = await Promise.all([
+  const [posts, rescued, pool, sp] = await Promise.all([
     listPosts(),
     listRescued(),
+    listPool(), // necesidades + recursos del pool común IA911 (toda la red)
     searchParams,
   ]);
+  // Propias + las de la red, en el mismo tablón.
+  const allPosts = [...posts, ...pool];
   // Los casos cerrados (rescatados/resueltos) no cuentan como solicitudes activas.
-  const open = posts.filter((p) => !isRescueClosed(p.rescue_state));
+  const open = allPosts.filter((p) => !isRescueClosed(p.rescue_state));
   const needs = open.filter((p) => p.type === "need").length;
   const offers = open.filter((p) => p.type === "offer").length;
   // El registro de rescatados es permanente: cuenta todos, no solo los activos.
@@ -92,7 +96,7 @@ export default async function Home({
               ✅ ¡Tu publicación está activa! Pronto alguien te contactará por WhatsApp.
             </div>
           )}
-          <Board posts={posts} rescuedCount={rescuedCount} />
+          <Board posts={allPosts} rescuedCount={rescuedCount} />
         </div>
       </main>
 

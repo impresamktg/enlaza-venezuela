@@ -37,6 +37,9 @@ export interface Post {
   duplicate_of: string | null; // si está set, es una corroboración (oculta de los tablones)
   corroboration_count: number; // nº de corroboraciones sobre la canónica
   photos: string[]; // URLs públicas en Storage (máx 2)
+  // Solo presentes en registros CONSUMIDOS del pool común (IA911), no en los propios.
+  source?: string | null; // etiqueta de origen, p. ej. "IA911"
+  source_url?: string | null; // enlace a la ficha original, si existe
 }
 
 /** Coincidencia para el aviso anti-duplicados al publicar un rescate. */
