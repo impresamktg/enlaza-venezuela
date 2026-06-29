@@ -85,7 +85,7 @@ export default function PostCard({
   if (interactive) {
     // Ubicación en una línea: edificio/dirección primero (lo que usa el rescate),
     // ciudad · zona como apoyo. Sin caja aparte ni dirección duplicada del título.
-    const locPrimary = specificLoc || cityLabel || "Venezuela";
+    const locPrimary = specificLoc || cityLabel;
     const locSecondary = specificLoc ? cityLabel : "";
 
     const hasMeta =
@@ -137,21 +137,23 @@ export default function PostCard({
               </p>
             )}
 
-            <div className="flex items-start gap-1 text-sm">
-              <span aria-hidden className="mt-px">
-                📍
-              </span>
-              <span className="min-w-0">
-                <span className="line-clamp-1 font-medium text-[var(--color-ink)]">
-                  {locPrimary}
+            {locPrimary && (
+              <div className="flex items-start gap-1 text-sm">
+                <span aria-hidden className="mt-px">
+                  📍
                 </span>
-                {locSecondary && (
-                  <span className="line-clamp-1 text-xs text-[var(--color-muted)]">
-                    {locSecondary}
+                <span className="min-w-0">
+                  <span className="line-clamp-1 font-medium text-[var(--color-ink)]">
+                    {locPrimary}
                   </span>
-                )}
-              </span>
-            </div>
+                  {locSecondary && (
+                    <span className="line-clamp-1 text-xs text-[var(--color-muted)]">
+                      {locSecondary}
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
 
             {hasMeta && (
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-muted)]">
@@ -267,9 +269,11 @@ export default function PostCard({
         {post.photos.length > 0 && <PhotoGallery photos={post.photos} variant="grid" />}
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs text-[var(--color-muted)]">
-          <span className="inline-flex items-center gap-1">
-            📍 {[cityLabel, post.zone].filter(Boolean).join(" · ") || "Venezuela"}
-          </span>
+          {[cityLabel, post.zone].filter(Boolean).join(" · ") && (
+            <span className="inline-flex items-center gap-1">
+              📍 {[cityLabel, post.zone].filter(Boolean).join(" · ")}
+            </span>
+          )}
           {post.corroboration_count > 0 && (
             <span
               className="inline-flex items-center gap-1 font-semibold"
