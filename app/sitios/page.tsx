@@ -87,8 +87,12 @@ export default async function SitiosPage({
           </h1>
           <p className="mt-1.5 max-w-2xl text-sm text-[var(--color-muted)]">
             Centros de acopio, refugios, clínicas y hospitales reportados por la comunidad
-            en terreno. Información comunitaria y sin verificar: puede estar incompleta o
-            desactualizada. Confirma antes de acudir o de llevar donaciones.
+            en terreno. Son reportes sin verificar y{" "}
+            <strong className="font-semibold text-[var(--color-ink)]">
+              sin teléfono de contacto
+            </strong>
+            : guíate por la fecha del último reporte —el estado pudo cambiar— y, si puedes,
+            confirma por canales locales antes de trasladarte o llevar donaciones.
           </p>
 
           {/* Filtros por tipo */}
