@@ -4,11 +4,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PostCard from "@/components/PostCard";
 import { getPostById, getCorroborations, findMatches } from "@/lib/db";
+import { getPoolPostById } from "@/lib/pool";
 import { isRescueClosed } from "@/lib/types";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 import { whatsappHref } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+
+// Las publicaciones de la red (IA911) tienen id sintético "ia911-…" y no viven
+// en nuestra BD: se resuelven desde el pool en caché.
+const resolvePost = (id: string) =>
+  id.startsWith("ia911-") ? getPoolPostById(id) : getPostById(id);
 
 export async function generateMetadata({
   params,
@@ -16,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const post = await getPostById(id);
+  const post = await resolvePost(id);
   if (!post) return { title: "Publicación no encontrada — Enlaza Venezuela" };
   const verb = post.type === "need" ? "Necesita" : "Ofrece";
   const title = `${verb}: ${post.title} — Enlaza Venezuela`;
@@ -37,7 +43,7 @@ export default async function PostPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const post = await getPostById(id);
+  const post = await resolvePost(id);
   const corroborations =
     post && post.corroboration_count > 0 ? await getCorroborations(post.id) : [];
   // Emparejamiento: el lado opuesto (oferta↔necesidad) en la misma categoría y
@@ -81,9 +87,21 @@ export default async function PostPage({
                 {post.type === "need" ? "Alguien necesita ayuda" : "Alguien ofrece ayuda"}
               </h1>
               <p className="text-sm text-[var(--color-muted)] mt-1 mb-4">
-                Publicación en Enlaza Venezuela · contacta directamente por WhatsApp.
+                {post.source
+                  ? `Reporte de la red de ayuda (vía ${post.source}) · contacta directamente por WhatsApp.`
+                  : "Publicación en Enlaza Venezuela · contacta directamente por WhatsApp."}
               </p>
               <PostCard post={post} />
+              {post.source && post.source_url && (
+                <a
+                  href={post.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+                >
+                  Ver reporte original ↗
+                </a>
+              )}
               {corroborations.length > 0 && (
                 <section className="mt-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
                   <h2 className="text-sm font-bold text-[var(--color-need-strong)]">

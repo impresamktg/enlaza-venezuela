@@ -155,3 +155,13 @@ export async function listPool(): Promise<Post[]> {
   const [needs, offers] = await Promise.all([listPoolNeeds(), listPoolOffers()]);
   return [...needs, ...offers];
 }
+
+/**
+ * Busca un registro del pool por su id sintético (ia911-…) para la página de
+ * detalle. Reaprovecha la caché de 60s de las listas; nunca lanza.
+ */
+export async function getPoolPostById(id: string): Promise<Post | null> {
+  if (!id.startsWith("ia911-")) return null;
+  const [pool, providers] = await Promise.all([listPool(), listPoolProviders()]);
+  return [...pool, ...providers].find((p) => p.id === id) ?? null;
+}

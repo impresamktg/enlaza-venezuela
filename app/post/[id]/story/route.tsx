@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import QRCode from "qrcode";
 import { getPostById } from "@/lib/db";
+import { getPoolPostById } from "@/lib/pool";
 import { CATEGORY_MAP, cityName } from "@/lib/data";
 
 // Imagen vertical 1080x1920 lista para Historias de Instagram / Estados de WhatsApp.
@@ -9,7 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const post = await getPostById(id);
+  const post = id.startsWith("ia911-")
+    ? await getPoolPostById(id)
+    : await getPostById(id);
   if (!post) return new Response("Not found", { status: 404 });
 
   const origin = new URL(req.url).origin;

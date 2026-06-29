@@ -85,7 +85,7 @@ export default async function DirectorioPage() {
                       <PostCard
                         key={p.id}
                         post={p}
-                        detailHref={p.source ? undefined : `/post/${p.id}`}
+                        detailHref={`/post/${p.id}`}
                       />
                     ))}
                   </div>

@@ -37,9 +37,10 @@ export default function PostCard({
     ? `Hola ${post.contact_name}, vi tu solicitud en ${via} ("${post.title}") y quiero ayudarte.`
     : `Hola ${post.contact_name}, vi tu oferta en ${via} ("${post.title}") y me interesa.`;
 
-  // Tablón = variante compacta de triaje; detalle = variante completa. Los
-  // registros consumidos del pool (post.source) también van en variante compacta.
-  const interactive = Boolean(detailHref) || Boolean(post.source);
+  // Tablón = variante compacta de triaje (lleva detailHref); detalle = variante
+  // completa (sin detailHref). Aplica igual a los registros del pool, que ahora
+  // tienen su propia página de detalle.
+  const interactive = Boolean(detailHref);
   // El estado de rescate solo aplica a solicitudes (alguien necesita ser rescatado),
   // no a ofertas de ayuda en rescate.
   const isRescue =

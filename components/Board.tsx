@@ -376,7 +376,7 @@ export default function Board({
                   post={post}
                   manageToken={tokens[post.id]}
                   distanceKm={distanceKm}
-                  detailHref={post.source ? undefined : `/post/${post.id}`}
+                  detailHref={`/post/${post.id}`}
                 />
               ))}
             </div>
